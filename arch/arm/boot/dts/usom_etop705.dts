@@ -105,8 +105,10 @@
 	panel {
 		compatible = "ti,tilcdc,panel";
 		status = "okay";
-		pinctrl-names = "default";
+		pinctrl-names = "default", "sleep";
 		pinctrl-0 = <&lcd_pins_default>;
+		pinctrl-1 = <&lcd_pins_sleep>;
+		enable-gpio = <&gpio1 29 0>;
 		panel-info {
 			ac-bias           = <255>;
 			ac-bias-intrpt    = <0>;
@@ -438,27 +440,8 @@
 };
 
 &lcdc {		
-			pinctrl-names = "default", "sleep";
-			pinctrl-0 = <&lcd_pins_default>;
-			pinctrl-1 = <&lcd_pins_sleep>;
-			status = "okay";
-			display-timings {
-				800x480p62 {
-					clock-frequency = <30000000>;
-					hactive = <800>;
-					vactive = <480>;
-					hfront-porch = <39>;
-					hback-porch = <39>;
-					hsync-len = <47>;
-					vback-porch = <29>;
-					vfront-porch = <13>;
-					vsync-len = <2>;
-					hsync-active = <1>;
-					vsync-active = <1>;
-				};
-			};
+	status = "okay";
 };
-
 
 &am33xx_pinmux {
 		pinctrl-names = "default";
