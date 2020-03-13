@@ -139,16 +139,20 @@
 };
 
 &uart0 {
+	/delete-property/dmas;
+	/delete-property/dma-names;
 	pinctrl-names = "default";
 	pinctrl-0 = <&uart0_pins>;
-//	rts-gpio = <&gpio1 6 0>;
-//	mode-gpio = <&gpio1 7 0>;
-//	rxen-gpio = <&gpio1 5 0>;
-//	rs485-rts-active-high;
+	rts-gpio = <&gpio1 6 0>;
+	mode-gpio = <&gpio1 7 0>;
+	rxen-gpio = <&gpio1 5 0>;
+	rs485-rts-active-high;
 	status = "okay";
 };
 
 &uart1 {
+	/delete-property/dmas;
+	/delete-property/dma-names;
 	pinctrl-names = "default";
 	pinctrl-0 = <&uart1_pins>;
 	plugin1 = <&plxx0>;
