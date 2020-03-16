@@ -67,7 +67,7 @@
 	};
 	
 	pwm: omap-pwm {
-	  compatible = "ti,omap-pwm";
+	  compatible = "ti,omap-dmtimer-pwm";
 	  ti,timers = <&timer6>;
 	  #pwm-cells = <3>;
 	};
