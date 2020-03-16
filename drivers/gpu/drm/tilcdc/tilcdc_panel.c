@@ -108,19 +108,26 @@ struct display_timings *dispid_get_timings(int dispid)
 
 	disp->timings[disp->num_timings]->flags = 0;
 
-	if(displayconfig[i].hs_inv == 1)
+	if(displayconfig[i].hs_inv == 0)
 		disp->timings[disp->num_timings]->flags |= DISPLAY_FLAGS_HSYNC_HIGH;
 	else
 		disp->timings[disp->num_timings]->flags |= DISPLAY_FLAGS_HSYNC_LOW;
 
-	if(displayconfig[i].vs_inv == 1)
+	if(displayconfig[i].vs_inv == 0)
 		disp->timings[disp->num_timings]->flags |= DISPLAY_FLAGS_VSYNC_HIGH;
 	else
 		disp->timings[disp->num_timings]->flags |= DISPLAY_FLAGS_VSYNC_LOW;
 
-	if(displayconfig[i].pclk_inv == 1)
-		disp->timings[disp->num_timings]->flags |= DISPLAY_FLAGS_PIXDATA_NEGEDGE;
+	if(displayconfig[i].blank_inv == 0)
+		disp->timings[disp->num_timings]->flags |= DISPLAY_FLAGS_DE_HIGH;
+	else
+		disp->timings[disp->num_timings]->flags |= DISPLAY_FLAGS_DE_LOW;
 
+	if(displayconfig[i].pclk_inv == 0)
+		disp->timings[disp->num_timings]->flags |= DISPLAY_FLAGS_PIXDATA_POSEDGE;
+	else
+		disp->timings[disp->num_timings]->flags |= DISPLAY_FLAGS_PIXDATA_NEGEDGE;	
+	
 	disp->num_timings ++;
 
 	return disp;
