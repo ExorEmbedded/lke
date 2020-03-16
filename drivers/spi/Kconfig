@@ -758,6 +758,14 @@ config SPI_ZYNQMP_GQSPI
 	depends on SPI_MASTER && HAS_DMA
 	help
 	  Enables Xilinx GQSPI controller driver for Zynq UltraScale+ MPSoC.
+	  
+config SPI_MUX_GPIO
+       tristate "GPIO-based SPI multiplexer support"
+       help
+         This adds support for a GPIO based multiplexer on one or more of the
+         SPI busses. The mux will be accessible as an extra master bus, the
+         devices behind the mux will appear to be chip selects on this master
+         bus.
 
 #
 # Add new SPI master controllers in alphabetical order above this line
