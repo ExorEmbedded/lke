@@ -387,26 +387,31 @@
 	pinctrl-0 = <&cpsw_default>;
 	pinctrl-1 = <&cpsw_sleep>;
 	dual_emac;
+	status = "okay";
 };
 
 &davinci_mdio {
 	pinctrl-names = "default", "sleep";
 	pinctrl-0 = <&davinci_mdio_default>;
 	pinctrl-1 = <&davinci_mdio_sleep>;
+	status = "okay";
 };
 
 &cpsw_emac0 {
   phy_id = <&davinci_mdio>, <0>;
   phy-mode = "rmii";
+  status = "okay";
 };
 
 &cpsw_emac1 {
   phy_id = <&davinci_mdio>, <1>;
   phy-mode = "rmii";
+  status = "okay";
 };
 
 &phy_sel {
-	rmii-clock-ext;
+  rmii-clock-ext;
+  status = "okay";
 };
 
 &mmc1 {
