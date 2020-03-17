@@ -24,6 +24,9 @@
 #include <linux/slab.h>
 
 #include <asm/unaligned.h>
+#include <linux/reset.h>
+#include <linux/delay.h>
+#include <linux/reboot.h>
 
 #define PCA953X_INPUT		0
 #define PCA953X_OUTPUT		1
@@ -143,17 +146,28 @@ struct pca953x_chip {
 	int (*read_regs)(struct pca953x_chip *, int, u8 *);
 };
 
+#define PCA_MAXRETRYNUM 10
+
 static int pca953x_read_single(struct pca953x_chip *chip, int reg, u32 *val,
 				int off)
 {
 	int ret;
 	int bank_shift = fls((chip->gpio_chip.ngpio - 1) / BANK_SZ);
 	int offset = off / BANK_SZ;
+	int retrycnt = 0;
+retry:	
+	usleep_range(150,200); //Delay required for MCP23016 chip
 
 	ret = i2c_smbus_read_byte_data(chip->client,
 				(reg << bank_shift) + offset);
 	*val = ret;
 
+	if((ret < 0) && (retrycnt++ < PCA_MAXRETRYNUM))
+	{
+	  usleep_range(5000,8000);
+	  goto retry;
+	}
+	
 	if (ret < 0) {
 		dev_err(&chip->client->dev, "failed reading register\n");
 		return ret;
@@ -168,10 +182,19 @@ static int pca953x_write_single(struct pca953x_chip *chip, int reg, u32 val,
 	int ret;
 	int bank_shift = fls((chip->gpio_chip.ngpio - 1) / BANK_SZ);
 	int offset = off / BANK_SZ;
+	int retrycnt = 0;
+retry:	
+	usleep_range(150,200); //Delay required for MCP23016 chip
 
 	ret = i2c_smbus_write_byte_data(chip->client,
 					(reg << bank_shift) + offset, val);
 
+	if((ret < 0) && (retrycnt++ < PCA_MAXRETRYNUM))
+	{
+	  usleep_range(5000,8000);
+	  goto retry;
+	}
+	
 	if (ret < 0) {
 		dev_err(&chip->client->dev, "failed writing register\n");
 		return ret;
@@ -188,7 +211,6 @@ static int pca953x_write_regs_8(struct pca953x_chip *chip, int reg, u8 *val)
 static int pca953x_write_regs_16(struct pca953x_chip *chip, int reg, u8 *val)
 {
 	u16 word = get_unaligned((u16 *)val);
-
 	return i2c_smbus_write_word_data(chip->client, reg << 1, word);
 }
 
@@ -200,6 +222,7 @@ static int pca957x_write_regs_16(struct pca953x_chip *chip, int reg, u8 *val)
 	if (ret < 0)
 		return ret;
 
+	usleep_range(150,200); //Delay required for MCP23016 chip
 	return i2c_smbus_write_byte_data(chip->client, (reg << 1) + 1, val[1]);
 }
 
@@ -207,6 +230,7 @@ static int pca953x_write_regs_24(struct pca953x_chip *chip, int reg, u8 *val)
 {
 	int bank_shift = fls((chip->gpio_chip.ngpio - 1) / BANK_SZ);
 
+	usleep_range(150,200); //Delay required for MCP23016 chip
 	return i2c_smbus_write_i2c_block_data(chip->client,
 					      (reg << bank_shift) | REG_ADDR_AI,
 					      NBANK(chip), val);
@@ -215,8 +239,17 @@ static int pca953x_write_regs_24(struct pca953x_chip *chip, int reg, u8 *val)
 static int pca953x_write_regs(struct pca953x_chip *chip, int reg, u8 *val)
 {
 	int ret = 0;
+	int retrycnt = 0;
+retry:	
+	usleep_range(150,200); //Delay required for MCP23016 chip
 
 	ret = chip->write_regs(chip, reg, val);
+	if((ret < 0) && (retrycnt++ < PCA_MAXRETRYNUM))
+	{
+	  usleep_range(5000,8000);
+	  goto retry;
+	}
+
 	if (ret < 0) {
 		dev_err(&chip->client->dev, "failed writing register\n");
 		return ret;
@@ -257,8 +290,18 @@ static int pca953x_read_regs_24(struct pca953x_chip *chip, int reg, u8 *val)
 static int pca953x_read_regs(struct pca953x_chip *chip, int reg, u8 *val)
 {
 	int ret;
+	int retrycnt = 0;
+retry:	
+	usleep_range(150,200); //Delay required for MCP23016 chip
 
 	ret = chip->read_regs(chip, reg, val);
+
+	if((ret < 0) && (retrycnt++ < PCA_MAXRETRYNUM))
+	{
+	  usleep_range(5000,8000);
+	  goto retry;
+	}
+	
 	if (ret < 0) {
 		dev_err(&chip->client->dev, "failed reading register\n");
 		return ret;
@@ -763,6 +806,7 @@ static int pca953x_probe(struct i2c_client *client,
 	int ret;
 	u32 invert = 0;
 	struct regulator *reg;
+	int restart_if_fails = 0;
 
 	chip = devm_kzalloc(&client->dev,
 			sizeof(struct pca953x_chip), GFP_KERNEL);
@@ -815,6 +859,10 @@ static int pca953x_probe(struct i2c_client *client,
 	} else {
 		const struct acpi_device_id *acpi_id;
 		const struct of_device_id *match;
+
+		/* Flag to restart if probe fails */
+		if (of_find_property(client->dev.of_node, "restart-if-fails", NULL))
+			restart_if_fails = 1;
 
 		match = of_match_device(pca953x_dt_ids, &client->dev);
 		if (match) {
@@ -896,6 +944,8 @@ static int pca953x_probe(struct i2c_client *client,
 
 err_exit:
 	regulator_disable(chip->regulator);
+	if(restart_if_fails)
+	  emergency_restart();
 	return ret;
 }
 
