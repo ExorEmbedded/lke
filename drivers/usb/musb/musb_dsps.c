@@ -633,6 +633,9 @@ static int dsps_musb_recover(struct musb *musb)
 	else
 		session_restart = 1;
 
+	//Ticket #673: we need to force a session restart anyway in order to recover the MXT USB touch
+	session_restart = 1;
+	
 	return session_restart ? 0 : -EPIPE;
 }
 
