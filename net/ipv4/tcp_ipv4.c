@@ -1537,7 +1537,7 @@ int tcp_v4_early_demux(struct sk_buff *skb)
 				       iph->saddr, th->source,
 				       iph->daddr, ntohs(th->dest),
 				       skb->skb_iif, inet_sdif(skb));
-	if (sk) {
+	if (!IS_ERR_OR_NULL(sk)) {
 		skb->sk = sk;
 		skb->destructor = sock_edemux;
 		if (sk_fullsock(sk)) {
