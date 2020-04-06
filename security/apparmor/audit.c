@@ -21,6 +21,8 @@
 #include "include/policy_ns.h"
 
 
+#error CVE-2019-18814
+
 const char *const audit_mode_names[] = {
 	"normal",
 	"quiet_denied",
