@@ -392,6 +392,7 @@ struct cpsw_platform_data {
 	u32	mac_control;	/* Mac control register */
 	u16	default_vlan;	/* Def VLAN for ALE lookup in VLAN aware mode*/
 	bool	dual_emac;	/* Enable Dual EMAC mode */
+	bool	only_emac1;	/* Enable EMAC1 as single emac */
 };
 
 struct cpsw_slave {
@@ -3037,6 +3038,10 @@ static int cpsw_probe_dt(struct cpsw_platform_data *data,
 
 	if (of_property_read_bool(node, "dual_emac"))
 		data->dual_emac = 1;
+
+	data->only_emac1 = 0;
+	if (of_property_read_bool(node, "only_emac1"))
+		data->only_emac1 = 1;
 	
 	if ( 1 == hw_switch ) {
 	  pr_info("Enable hw switch %X \n", hw_switch);
@@ -3478,11 +3483,18 @@ static int cpsw_probe(struct platform_device *pdev)
 
 	/* register the network device */
 	SET_NETDEV_DEV(ndev, &pdev->dev);
-	ret = register_netdev(ndev);
-	if (ret) {
-		dev_err(priv->dev, "error registering net device\n");
-		ret = -ENODEV;
-		goto clean_dma_ret;
+
+	if(!cpsw->data.only_emac1)
+	{
+		dev_info(&pdev->dev, "Try to register first net MACID = %pM\n", priv->mac_addr);
+		ret = register_netdev(ndev);
+		if (ret) {
+			dev_err(priv->dev, "error registering net device\n");
+			ret = -ENODEV;
+			goto clean_dma_ret;
+		}
+	} else {
+		memcpy(data->slave_data[1].mac_addr, priv->mac_addr,  ETH_ALEN);
 	}
 
 	if (cpsw->data.dual_emac) {

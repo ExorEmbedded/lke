@@ -639,7 +639,8 @@ dtb-$(CONFIG_SOC_AM33XX) += \
 	usom_ab19.dtb \
 	usom_na16.dtb \
 	usom_plcm07.dtb \
-	usom_etop705.dtb
+	usom_etop705.dtb \
+	usom_wu16.dtb
 dtb-$(CONFIG_ARCH_OMAP4) += \
 	omap4-droid4-xt894.dtb \
 	omap4-duovero-parlor.dtb \
