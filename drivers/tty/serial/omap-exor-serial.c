@@ -705,7 +705,6 @@ struct uart_omap_port {
 	u8			wakeups_enabled;
 	u32			features;
 
-	struct serial_rs485	rs485;
 	int			rts_gpio;
 	int 			mode_gpio;    /* If a valid gpio is mapped here, it means we have a programmable RS485/RS232 phy */
 	int                     rxen_gpio;    /* If a valid gpio is mapped here, we will use it for disabling the RX echo while in RS485 mode */
@@ -913,17 +912,17 @@ static void serial_omap_stop_tx(struct uart_port *port)
 			;	//wait max 53us at 187500 baud
 		if(gpio_is_valid(up->rts_gpio)) {
 			/* if rts not already disabled */
-			res = (up->rs485.flags & SER_RS485_RTS_AFTER_SEND) ? 1 : 0;
+			res = (port->rs485.flags & SER_RS485_RTS_AFTER_SEND) ? 1 : 0;
 			if (gpio_get_value(up->rts_gpio) != res) {
-				if (up->rs485.delay_rts_after_send > 0) {
-					mdelay(up->rs485.delay_rts_after_send);
+				if (port->rs485.delay_rts_after_send > 0) {
+					mdelay(port->rs485.delay_rts_after_send);
 				}
 				gpio_set_value(up->rts_gpio, res);
 			}
 		} else {
 			//Enabled RS485/422 mode, but no rts_gpio pin available, use RTS native pin
 			unsigned char tmpmcr;
-			if(!(up->rs485.flags & SER_RS485_RTS_AFTER_SEND)) {
+			if(!(port->rs485.flags & SER_RS485_RTS_AFTER_SEND)) {
 				tmpmcr = serial_in(up, UART_MCR);
 				tmpmcr &= ~UART_MCR_RTS;
 				serial_out(up, UART_MCR, tmpmcr);
@@ -933,7 +932,7 @@ static void serial_omap_stop_tx(struct uart_port *port)
 #endif	
 	{
 		/* Handle RS-485 */
-		if (up->rs485.flags & SER_RS485_ENABLED) {
+		if (port->rs485.flags & SER_RS485_ENABLED) {
 			if (up->scr & OMAP_UART_SCR_TX_EMPTY) {
 				/* THR interrupt is fired when both TX FIFO and TX
 				 * shift register are empty. This means there's nothing
@@ -959,10 +958,10 @@ static void serial_omap_stop_tx(struct uart_port *port)
 					if(gpio_is_valid(up->rts_gpio))
 					{
 						/* if rts not already disabled */
-						res = (up->rs485.flags & SER_RS485_RTS_AFTER_SEND) ? 1 : 0;
+						res = (port->rs485.flags & SER_RS485_RTS_AFTER_SEND) ? 1 : 0;
 						if (gpio_get_value(up->rts_gpio) != res) {
-							if (up->rs485.delay_rts_after_send > 0) {
-								mdelay(up->rs485.delay_rts_after_send);
+							if (port->rs485.delay_rts_after_send > 0) {
+								mdelay(port->rs485.delay_rts_after_send);
 							}
 							gpio_set_value(up->rts_gpio, res);
 						}
@@ -971,7 +970,7 @@ static void serial_omap_stop_tx(struct uart_port *port)
 					{
 						//Enabled RS485/422 mode, but no rts_gpio pin available, use RTS native pin
 						unsigned char tmpmcr;
-						if(!(up->rs485.flags & SER_RS485_RTS_AFTER_SEND)) {
+						if(!(port->rs485.flags & SER_RS485_RTS_AFTER_SEND)) {
 							tmpmcr = serial_in(up, UART_MCR);
 							tmpmcr &= ~UART_MCR_RTS;
 							serial_out(up, UART_MCR, tmpmcr);
@@ -998,8 +997,8 @@ static void serial_omap_stop_tx(struct uart_port *port)
 		serial_out(up, UART_IER, up->ier);
 	}
 
-	if ((up->rs485.flags & SER_RS485_ENABLED) &&
-		!(up->rs485.flags & SER_RS485_RX_DURING_TX))
+	if ((port->rs485.flags & SER_RS485_ENABLED) &&
+		!(port->rs485.flags & SER_RS485_RX_DURING_TX))
 	{
 	  //RX enable by using the prg phy dedicated gpio pin
 	  if (gpio_is_valid(up->rxen_gpio))
@@ -1013,7 +1012,7 @@ static void serial_omap_stop_tx(struct uart_port *port)
 	}
 #else
 	/* Handle RS-485 */
-	if (up->rs485.flags & SER_RS485_ENABLED) {
+	if (port->rs485.flags & SER_RS485_ENABLED) {
 		if (up->scr & OMAP_UART_SCR_TX_EMPTY) {
 			/* THR interrupt is fired when both TX FIFO and TX
 			 * shift register are empty. This means there's nothing
@@ -1031,10 +1030,10 @@ static void serial_omap_stop_tx(struct uart_port *port)
 			  if(gpio_is_valid(up->rts_gpio))
 			  {
 				  /* if rts not already disabled */
-				  res = (up->rs485.flags & SER_RS485_RTS_AFTER_SEND) ? 1 : 0;
+				  res = (port->rs485.flags & SER_RS485_RTS_AFTER_SEND) ? 1 : 0;
 				  if (gpio_get_value(up->rts_gpio) != res) {
-					  if (up->rs485.delay_rts_after_send > 0) {
-						  mdelay(up->rs485.delay_rts_after_send);
+					  if (port->rs485.delay_rts_after_send > 0) {
+						  mdelay(port->rs485.delay_rts_after_send);
 					  }
 					  gpio_set_value(up->rts_gpio, res);
 				  }
@@ -1043,7 +1042,7 @@ static void serial_omap_stop_tx(struct uart_port *port)
 			  {
 				//Enabled RS485/422 mode, but no rts_gpio pin available, use RTS native pin
 				unsigned char tmpmcr;
-				if(!(up->rs485.flags & SER_RS485_RTS_AFTER_SEND))
+				if(!(port->rs485.flags & SER_RS485_RTS_AFTER_SEND))
 				{
 				  tmpmcr = serial_in(up, UART_MCR);
 				  tmpmcr &= ~UART_MCR_RTS;
@@ -1070,8 +1069,8 @@ static void serial_omap_stop_tx(struct uart_port *port)
 		serial_out(up, UART_IER, up->ier);
 	}
 
-	if ((up->rs485.flags & SER_RS485_ENABLED) &&
-	    !(up->rs485.flags & SER_RS485_RX_DURING_TX)) 
+	if ((port->rs485.flags & SER_RS485_ENABLED) &&
+	    !(port->rs485.flags & SER_RS485_RX_DURING_TX)) 
 	{
 	  //RX enable by using the prg phy dedicated gpio pin
 	  if (gpio_is_valid(up->rxen_gpio)) 
@@ -1188,7 +1187,7 @@ static void SCNK_start_tx(struct uart_port *port)
 	int res;
 
 	/* handle rs485 */
-	if (up->rs485.flags & SER_RS485_ENABLED)
+	if (port->rs485.flags & SER_RS485_ENABLED)
 	{
 	  /* Fire THR interrupts when FIFO is below trigger level */
 	  up->scr &= ~OMAP_UART_SCR_TX_EMPTY;
@@ -1197,11 +1196,11 @@ static void SCNK_start_tx(struct uart_port *port)
 	  if(gpio_is_valid(up->rts_gpio))
 	  {
 		/* if rts not already enabled */
-		res = (up->rs485.flags & SER_RS485_RTS_ON_SEND) ? 1 : 0;
+		res = (port->rs485.flags & SER_RS485_RTS_ON_SEND) ? 1 : 0;
 		if (gpio_get_value(up->rts_gpio) != res) {
 			gpio_set_value(up->rts_gpio, res);
-			if (up->rs485.delay_rts_before_send > 0) {
-				mdelay(up->rs485.delay_rts_before_send);
+			if (port->rs485.delay_rts_before_send > 0) {
+				mdelay(port->rs485.delay_rts_before_send);
 			}
 		}
 	  }
@@ -1222,7 +1221,7 @@ static void SCNK_start_tx(struct uart_port *port)
 		if (gpio_is_valid(up->mode_gpio)) {
 			if (gpio_is_valid(up->rts_gpio))
 			{
-				res = (up->rs485.flags & SER_RS485_RTS_ON_SEND) ? 1 : 0;
+				res = (port->rs485.flags & SER_RS485_RTS_ON_SEND) ? 1 : 0;
 				if (gpio_get_value(up->rts_gpio) != res)
 				{
 					gpio_set_value(up->rts_gpio, res);
@@ -1231,8 +1230,8 @@ static void SCNK_start_tx(struct uart_port *port)
 		}
 	}
 
-	if ((up->rs485.flags & SER_RS485_ENABLED) &&
-		!(up->rs485.flags & SER_RS485_RX_DURING_TX))
+	if ((port->rs485.flags & SER_RS485_ENABLED) &&
+		!(port->rs485.flags & SER_RS485_RX_DURING_TX))
 	{
 	  //RX disable by using the prg phy dedicated gpio pin
 	  if (gpio_is_valid(up->rxen_gpio))
@@ -1278,7 +1277,7 @@ static void serial_omap_start_tx(struct uart_port *port)
 #endif
 	{
 		/* handle rs485 */
-		if (up->rs485.flags & SER_RS485_ENABLED)
+		if (port->rs485.flags & SER_RS485_ENABLED)
 		{
 		  /* Fire THR interrupts when FIFO is below trigger level */
 		  up->scr &= ~OMAP_UART_SCR_TX_EMPTY;
@@ -1287,11 +1286,11 @@ static void serial_omap_start_tx(struct uart_port *port)
 		  if(gpio_is_valid(up->rts_gpio))
 		  {
 			/* if rts not already enabled */
-			res = (up->rs485.flags & SER_RS485_RTS_ON_SEND) ? 1 : 0;
+			res = (port->rs485.flags & SER_RS485_RTS_ON_SEND) ? 1 : 0;
 			if (gpio_get_value(up->rts_gpio) != res) {
 				gpio_set_value(up->rts_gpio, res);
-				if (up->rs485.delay_rts_before_send > 0) {
-					mdelay(up->rs485.delay_rts_before_send);
+				if (port->rs485.delay_rts_before_send > 0) {
+					mdelay(port->rs485.delay_rts_before_send);
 				}
 			}
 		  }
@@ -1313,7 +1312,7 @@ static void serial_omap_start_tx(struct uart_port *port)
 			if (gpio_is_valid(up->mode_gpio)) {
 				if (gpio_is_valid(up->rts_gpio))
 				{
-					res = (up->rs485.flags & SER_RS485_RTS_ON_SEND) ? 1 : 0;
+					res = (port->rs485.flags & SER_RS485_RTS_ON_SEND) ? 1 : 0;
 					if (gpio_get_value(up->rts_gpio) != res)
 					{
 						gpio_set_value(up->rts_gpio, res);
@@ -1322,8 +1321,8 @@ static void serial_omap_start_tx(struct uart_port *port)
 			}
 		}
 
-		if ((up->rs485.flags & SER_RS485_ENABLED) &&
-			!(up->rs485.flags & SER_RS485_RX_DURING_TX))
+		if ((port->rs485.flags & SER_RS485_ENABLED) &&
+			!(port->rs485.flags & SER_RS485_RX_DURING_TX))
 		{
 		  //RX disable by using the prg phy dedicated gpio pin
 		  if (gpio_is_valid(up->rxen_gpio))
@@ -5168,6 +5167,18 @@ static void serial_omap_shutdown(struct uart_port *port)
 	unsigned long flags = 0;
 
 	dev_dbg(up->port.dev, "serial_omap_shutdown+%d\n", up->port.line);
+#ifdef EXOR_SCNK
+	sport->SCNKdata.SCNKenabled = false;
+#endif
+#ifdef EXOR_MPI
+	if (up->MPIdata.MPIenabled)
+	{
+	  hrtimer_try_to_cancel(&up->MPIdata.hrt);
+	  up->MPIdata.m_isOpen = false;
+	  up->MPIdata.MPIenabled = false;
+	  up->MPIdata.MPImode = false;
+	}
+#endif
 
 	pm_runtime_get_sync(up->dev);
 	/*
@@ -5199,15 +5210,6 @@ static void serial_omap_shutdown(struct uart_port *port)
 	if(gpio_is_valid(up->rts_gpio)) {
 		gpio_set_value(up->rts_gpio, 0);
 	}
-#ifdef EXOR_SCNK
-	sport->SCNKdata.SCNKenabled = false;
-#endif
-#ifdef EXOR_MPI
-	hrtimer_try_to_cancel(&up->MPIdata.hrt);
-	up->MPIdata.m_isOpen = false;
-	up->MPIdata.MPIenabled = false;
-	up->MPIdata.MPImode = false;
-#endif
 }
 
 
@@ -5479,7 +5481,7 @@ static void serial_omap_set_termios(struct uart_port *port, struct ktermios *ter
 
 	serial_omap_set_mctrl(&up->port, up->port.mctrl);
 	
-	if (up->rs485.flags & SER_RS485_ENABLED)
+	if (port->rs485.flags & SER_RS485_ENABLED)
 	  if (!gpio_is_valid(up->rts_gpio))
 	  {
 	    //Enabled RS485/422 mode, but no rts_gpio pin available, use RTS native pin
@@ -5736,23 +5738,18 @@ static inline void serial_omap_add_console_port(struct uart_omap_port *up)
 #endif
 
 /* Enable or disable the rs485 support */
-static void serial_omap_config_rs485(struct uart_port *port, struct serial_rs485 *rs485conf)
+static void serial_omap_config_rs485(struct uart_port *port)
 {
 	struct uart_omap_port *up = to_uart_omap_port(port);
-	unsigned long flags;
 	unsigned int mode;
 	int val;
 
 	pm_runtime_get_sync(up->dev);
-	spin_lock_irqsave(&up->port.lock, flags);
 
 	/* Disable interrupts from this port */
 	mode = up->ier;
 	up->ier = 0;
 	serial_out(up, UART_IER, 0);
-
-	/* store new config */
-	up->rs485 = *rs485conf;
 
 	/*
 	 * Set initial value of tx_enable pin
@@ -5760,12 +5757,12 @@ static void serial_omap_config_rs485(struct uart_port *port, struct serial_rs485
 	 */
 	if (gpio_is_valid(up->rts_gpio)) {
 		/* enable / disable rts_gpio pin */
-		val = (up->rs485.flags & SER_RS485_ENABLED) ?
+		val = (port->rs485.flags & SER_RS485_ENABLED) ?
 			SER_RS485_RTS_AFTER_SEND : SER_RS485_RTS_ON_SEND;
-		val = (up->rs485.flags & val) ? 1 : 0;
+		val = (port->rs485.flags & val) ? 1 : 0;
 		gpio_set_value(up->rts_gpio, val);
 	} 
-	else if (up->rs485.flags & SER_RS485_ENABLED)
+	else if (port->rs485.flags & SER_RS485_ENABLED)
 	{
 	  //Enabled RS485/422 mode, but no rts_gpio pin available, use RTS native pin
 	  unsigned char tmpmcr;
@@ -5779,7 +5776,7 @@ static void serial_omap_config_rs485(struct uart_port *port, struct serial_rs485
 	 */
 	if (gpio_is_valid(up->mode_gpio)) 
 	{
-	  if(up->rs485.flags & SER_RS485_ENABLED)
+	  if(port->rs485.flags & SER_RS485_ENABLED)
 	    gpio_set_value(up->mode_gpio, 1);
 	  else
 	    gpio_set_value(up->mode_gpio, 0);
@@ -5796,13 +5793,12 @@ static void serial_omap_config_rs485(struct uart_port *port, struct serial_rs485
 	/* If RS-485 is disabled, make sure the THR interrupt is fired when
 	 * TX FIFO is below the trigger level.
 	 */
-	if (!(up->rs485.flags & SER_RS485_ENABLED) &&
+	if (!(port->rs485.flags & SER_RS485_ENABLED) &&
 	    (up->scr & OMAP_UART_SCR_TX_EMPTY)) {
 		up->scr &= ~OMAP_UART_SCR_TX_EMPTY;
 		serial_out(up, UART_OMAP_SCR, up->scr);
 	}
 	
-	spin_unlock_irqrestore(&up->port.lock, flags);
 	pm_runtime_mark_last_busy(up->dev);
 	pm_runtime_put_autosuspend(up->dev);
 }
@@ -5992,43 +5988,41 @@ static int serial_omap_ioctl_mpi(struct uart_port *port, unsigned int cmd, unsig
 	return ret;
 }
 #endif
+
+static int serial_omap_rs485_config(struct uart_port *port, struct serial_rs485 *rs485conf)
+{
+  struct uart_omap_port *up = to_uart_omap_port(port);
+  extern int plxx_manager_sendcmd(struct platform_device *pdev, unsigned int cmd);
+  
+  port->rs485 = *rs485conf;
+  serial_omap_config_rs485(port);
+  
+  //Set duplex mode for RS485/422 plugin modules, according with RS485 or RS422 mode set
+  if (port->rs485.flags & SER_RS485_ENABLED)
+    if (!gpio_is_valid(up->rxen_gpio)) 
+    {
+      unsigned int cmd;
+      
+      if(port->rs485.flags & SER_RS485_RX_DURING_TX)
+	cmd = RS422_485_IF_SETFD;
+      else
+	cmd = RS422_485_IF_SETHD;
+      
+      if(up->plugin1dev)
+	plxx_manager_sendcmd(up->plugin1dev , cmd); 
+      if(up->plugin2dev) 
+	plxx_manager_sendcmd(up->plugin2dev , cmd); 
+    }
+    
+  return 0;
+}
+
+
 static int serial_omap_ioctl(struct uart_port *port, unsigned int cmd, unsigned long arg)
 {
-	struct serial_rs485 rs485conf;
 	struct uart_omap_port *up = to_uart_omap_port(port);
-	extern int plxx_manager_sendcmd(struct platform_device *pdev, unsigned int cmd);
 	
 	switch (cmd) {
-	case TIOCSRS485:
-		if (copy_from_user(&rs485conf, (struct serial_rs485 *) arg,
-					sizeof(rs485conf)))
-			return -EFAULT;
-
-		serial_omap_config_rs485(port, &rs485conf);
-
-		//Set duplex mode for RS485/422 plugin modules, according with RS485 or RS422 mode set
-		if (up->rs485.flags & SER_RS485_ENABLED)
-		    if (!gpio_is_valid(up->rxen_gpio)) 
-		    {
-		      unsigned int cmd;
-		      
-		      if(up->rs485.flags & SER_RS485_RX_DURING_TX)
-			cmd = RS422_485_IF_SETFD;
-		      else
-			cmd = RS422_485_IF_SETHD;
-		      if(up->plugin1dev) 
-			plxx_manager_sendcmd(up->plugin1dev , cmd); 
-		      if(up->plugin2dev) 
-			plxx_manager_sendcmd(up->plugin2dev , cmd); 
-		    } 
-		break;
-
-	case TIOCGRS485:
-		if (copy_to_user((struct serial_rs485 *) arg,
-					&(to_uart_omap_port(port)->rs485),
-					sizeof(rs485conf)))
-			return -EFAULT;
-		break;
 #ifdef EXOR_SCNK
 	case SET_SCNK_MODE:
 #ifdef EXOR_MPI
@@ -6279,7 +6273,7 @@ static struct omap_uart_port_info *of_get_uart_port_info(struct device *dev)
 static int serial_omap_probe_rs485(struct uart_omap_port *up,
 				   struct device_node *np)
 {
-	struct serial_rs485 *rs485conf = &up->rs485;
+	struct serial_rs485 *rs485conf = &(up->port.rs485);
 	u32 rs485_delay[2];
 	enum of_gpio_flags flags;
 	int ret;
@@ -6424,6 +6418,7 @@ static int serial_omap_probe(struct platform_device *pdev)
 	up->port.regshift = 2;
 	up->port.fifosize = 64;
 	up->port.ops = &serial_omap_pops;
+	up->port.rs485_config = serial_omap_rs485_config;
 
 	if (pdev->dev.of_node)
 		up->port.line = of_alias_get_id(pdev->dev.of_node, "serial");
