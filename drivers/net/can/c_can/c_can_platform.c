@@ -37,10 +37,30 @@
 
 #include <linux/can/dev.h>
 
+#include <linux/gpio.h>
+#include <linux/of_gpio.h>
+#if defined(CONFIG_CAN_TJA1145) || defined(CONFIG_CAN_TJA1145_MODULE)
+#include <linux/spi/spi.h>
+#include <linux/spi/tja1145.h>
+#endif
+
 #include "c_can.h"
 
 #define DCAN_RAM_INIT_BIT		(1 << 3)
 static DEFINE_SPINLOCK(raminit_lock);
+
+static void c_can_plat_work_func(struct work_struct *work)
+{
+#if defined(CONFIG_CAN_TJA1145) || defined(CONFIG_CAN_TJA1145_MODULE)
+	struct c_can_priv *priv = container_of(work, struct c_can_priv, work);
+
+	printk("%s %d\n", __func__, priv->can.bittiming.bitrate );
+
+	if(priv->transceiver_fc && priv->transceiver_fc->transceiver_change_bitrate)
+		priv->transceiver_fc->transceiver_change_bitrate(priv->transceiver_fc, priv->can.bittiming.bitrate );
+#endif
+}
+
 /*
  * 16-bit c_can registers can be arranged differently in the memory
  * architecture of different implementations. For example: 16-bit
@@ -260,6 +280,12 @@ static int c_can_plat_probe(struct platform_device *pdev)
 	const struct c_can_driver_data *drvdata;
 	struct device_node *np = pdev->dev.of_node;
 
+	enum of_gpio_flags flags;
+#if defined(CONFIG_CAN_TJA1145) || defined(CONFIG_CAN_TJA1145_MODULE)
+	u32  transceiver_handle = 0;
+	struct device_node* transceiver_node;
+#endif
+
 	match = of_match_device(c_can_of_table, &pdev->dev);
 	if (match) {
 		drvdata = match->data;
@@ -299,6 +325,78 @@ static int c_can_plat_probe(struct platform_device *pdev)
 	}
 
 	priv = netdev_priv(dev);
+
+#if defined(CONFIG_CAN_TJA1145) || defined(CONFIG_CAN_TJA1145_MODULE)
+	priv->transceiver_fc = NULL;
+	/*
+	 * TJA1145 transceiver
+	 */
+	ret = of_property_read_u32(pdev->dev.of_node, "transceiver", &transceiver_handle);
+	if (ret != 0)
+	{
+		dev_info(&pdev->dev, "No managed transceiver found\n");
+	}
+	else
+	{
+		dev_info(&pdev->dev, "Managed transceiver found\n");
+		transceiver_node = of_find_node_by_phandle(transceiver_handle);
+		if (transceiver_node == NULL)
+		{
+			dev_err(&pdev->dev, "Failed to find transceiver node\n");
+			return -ENODEV;
+		}
+
+		priv->transceiver_client = of_find_spi_device_by_node(transceiver_node);
+		if (priv->transceiver_client == NULL)
+		{
+			dev_err(&pdev->dev, "Failed to find spi client\n");
+			of_node_put(transceiver_node);
+			ret = -EPROBE_DEFER;
+			goto exit_free_device;
+		}
+		tja1145_driver_version(priv->transceiver_client);
+		/* release ref to the node and inc reference to the SPI client used */
+		of_node_put(transceiver_node);
+		transceiver_node = NULL;
+
+		/* And now get the TJA1145 function accessor */
+		priv->transceiver_fc = spi_tja1145_get_func_accessor(priv->transceiver_client);
+		if (IS_ERR_OR_NULL(priv->transceiver_fc))
+		{
+			dev_err(&pdev->dev, "Failed to get memory accessor\n");
+			ret = -EPROBE_DEFER;
+			goto exit_free_device;
+		}
+		if( priv->transceiver_fc && priv->transceiver_fc->transceiver_start )
+			priv->transceiver_fc->transceiver_start(priv->transceiver_fc);
+
+		INIT_WORK(&priv->work, c_can_plat_work_func);
+	}
+#endif
+
+	/*
+	 * Stand-By gpio
+	 */
+	priv->stb_gpio = of_get_named_gpio_flags(pdev->dev.of_node, "stb-gpio", 0,  &flags);
+	if (priv->stb_gpio == -EPROBE_DEFER)
+	{
+		ret = -EPROBE_DEFER;
+		goto exit_free_device;
+	}
+
+	if( (priv->stb_gpio >= 0) &&
+	    (gpio_is_valid(priv->stb_gpio))
+	  )
+	{
+		dev_info( &pdev->dev, "request GPIO (stb_gpio) = %d \n", priv->stb_gpio );
+		ret = gpio_request_one( priv->stb_gpio, flags, "stbgpio");
+		if (ret < 0) {
+			dev_err( &pdev->dev, "failed to request GPIO %d: %d\n", priv->stb_gpio, ret);
+			return -ENODEV;
+		}
+		gpio_set_value_cansleep(priv->stb_gpio, 1);
+	}
+
 	switch (drvdata->id) {
 	case BOSCH_C_CAN:
 		priv->regs = reg_map_c_can;
@@ -407,6 +505,18 @@ exit:
 static int c_can_plat_remove(struct platform_device *pdev)
 {
 	struct net_device *dev = platform_get_drvdata(pdev);
+	struct c_can_priv *priv = netdev_priv(dev);
+
+#if defined(CONFIG_CAN_TJA1145) || defined(CONFIG_CAN_TJA1145_MODULE)
+	if( priv->transceiver_fc && priv->transceiver_fc->transceiver_stop )
+		priv->transceiver_fc->transceiver_stop(priv->transceiver_fc);
+#endif
+
+	if( (priv->stb_gpio >= 0) && (gpio_is_valid(priv->stb_gpio)) )
+	{
+	    gpio_set_value_cansleep(priv->stb_gpio, 0);
+	    gpio_free(priv->stb_gpio);
+	}
 
 	unregister_c_can_dev(dev);
 

@@ -213,8 +213,15 @@ struct c_can_priv {
 	u32 comm_rcv_high;
 	u32 rxmasked;
 	u32 dlc[C_CAN_MSG_OBJ_TX_NUM];
+	u32 stb_gpio;
+#if defined(CONFIG_CAN_TJA1145) || defined(CONFIG_CAN_TJA1145_MODULE)
+	struct spi_device* transceiver_client;
+	struct tja1145_functions_accessor*  transceiver_fc;
+	struct work_struct work;
+#endif
 };
 
+struct net_device *alloc_c_can_dev_alias(const char *alias);
 struct net_device *alloc_c_can_dev(void);
 void free_c_can_dev(struct net_device *dev);
 int register_c_can_dev(struct net_device *dev);

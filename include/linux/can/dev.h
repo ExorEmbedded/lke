@@ -58,6 +58,7 @@ struct can_priv {
 
 	int restart_ms;
 	struct delayed_work restart_work;
+	struct timer_list restart_timer;
 
 	int (*do_set_bittiming)(struct net_device *dev);
 	int (*do_set_data_bittiming)(struct net_device *dev);
@@ -144,6 +145,7 @@ u8 can_dlc2len(u8 can_dlc);
 u8 can_len2dlc(u8 len);
 
 struct net_device *alloc_candev(int sizeof_priv, unsigned int echo_skb_max);
+struct net_device *alloc_candev_alias(int sizeof_priv, unsigned int echo_skb_max, const char *alias);
 void free_candev(struct net_device *dev);
 
 /* a candev safe wrapper around netdev_priv */

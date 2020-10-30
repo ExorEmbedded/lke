@@ -42,6 +42,10 @@
 #include <linux/can/error.h>
 #include <linux/can/led.h>
 
+#if defined(CONFIG_CAN_TJA1145) || defined(CONFIG_CAN_TJA1145_MODULE)
+#include <linux/spi/spi.h>
+#include <linux/spi/tja1145.h>
+#endif
 #include "c_can.h"
 
 /* Number of interface registers */
@@ -540,6 +544,11 @@ static int c_can_set_bittiming(struct net_device *dev)
 	priv->write_reg(priv, C_CAN_BTR_REG, reg_btr);
 	priv->write_reg(priv, C_CAN_BRPEXT_REG, reg_brpe);
 	priv->write_reg(priv, C_CAN_CTRL_REG, ctrl_save);
+
+#if defined(CONFIG_CAN_TJA1145) || defined(CONFIG_CAN_TJA1145_MODULE)
+	if(priv->transceiver_fc)
+		schedule_work(&priv->work);
+#endif
 
 	return c_can_wait_for_ctrl_init(dev, priv, 0);
 }
@@ -1159,6 +1168,47 @@ static int c_can_close(struct net_device *dev)
 	return 0;
 }
 
+static int c_can_ioctl(struct net_device *dev, struct ifreq *ifr, int cmd)
+{
+	struct c_can_priv *priv = netdev_priv(dev);
+	netdev_dbg(dev, "%s request for new ioctl\n", __func__);
+
+#if defined(CONFIG_CAN_TJA1145) || defined(CONFIG_CAN_TJA1145_MODULE)
+	if(cmd >= SIOCTJA1145SETWAKEUP )
+	{
+		netdev_dbg(dev, "%s request for new ioctl for can transceiver\n", __func__);
+		if(priv->transceiver_fc && priv->transceiver_fc->transceiver_ioctl)
+			priv->transceiver_fc->transceiver_ioctl(priv->transceiver_fc, ifr, cmd);
+	}
+#endif
+
+	return 0;
+}
+
+struct net_device *alloc_c_can_dev_alias(const char *alias)
+{
+	struct net_device *dev;
+	struct c_can_priv *priv;
+
+	dev = alloc_candev_alias(sizeof(struct c_can_priv), C_CAN_MSG_OBJ_TX_NUM, alias);
+	if (!dev)
+		return NULL;
+
+	priv = netdev_priv(dev);
+	netif_napi_add(dev, &priv->napi, c_can_poll, C_CAN_NAPI_WEIGHT);
+
+	priv->dev = dev;
+	priv->can.bittiming_const = &c_can_bittiming_const;
+	priv->can.do_set_mode = c_can_set_mode;
+	priv->can.do_get_berr_counter = c_can_get_berr_counter;
+	priv->can.ctrlmode_supported = CAN_CTRLMODE_LOOPBACK |
+					CAN_CTRLMODE_LISTENONLY |
+					CAN_CTRLMODE_BERR_REPORTING;
+
+	return dev;
+}
+EXPORT_SYMBOL_GPL(alloc_c_can_dev_alias);
+
 struct net_device *alloc_c_can_dev(void)
 {
 	struct net_device *dev;
@@ -1273,6 +1323,7 @@ static const struct net_device_ops c_can_netdev_ops = {
 	.ndo_stop = c_can_close,
 	.ndo_start_xmit = c_can_start_xmit,
 	.ndo_change_mtu = can_change_mtu,
+	.ndo_do_ioctl = c_can_ioctl,
 };
 
 int register_c_can_dev(struct net_device *dev)
