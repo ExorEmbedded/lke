@@ -154,6 +154,17 @@
 		pwms = <&pwm 0 50000 0>;
 	};
 
+	dig_io:dig_io {
+		compatible = "exor,gpio_initializer";
+		pinctrl-names = "default";
+
+		gpios = <&gpio2 1  0x21>, <&gpio1 19 0x21>, <&gpio3 15 0x21>, <&gpio3 16 0x21>, <&gpio3 17 0x21>, <&gpio3 21 0x21>,
+		        <&gpio3 14 0x20>, <&gpio1 18 0x20>, <&gpio2 18 0x20>, <&gpio2 19 0x20>, <&gpio2 20 0x20>, <&gpio2 21 0x20>;
+
+		gpio-names = "flt12", "flt34", "in1",  "in2",  "in3",  "in4",
+		             "en12",  "en34",  "out1", "out2", "out3", "out4";
+	};
+
 	panel {
 		compatible = "ti,tilcdc,panel";
 		status = "okay";
