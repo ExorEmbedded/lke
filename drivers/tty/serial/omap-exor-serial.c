@@ -706,16 +706,17 @@ struct uart_omap_port {
 	u32			features;
 
 	int			rts_gpio;
-	int 			mode_gpio;    /* If a valid gpio is mapped here, it means we have a programmable RS485/RS232 phy */
-	int                     rxen_gpio;    /* If a valid gpio is mapped here, we will use it for disabling the RX echo while in RS485 mode */
+	int			mode_gpio;    /* If a valid gpio is mapped here, it means we have a programmable RS485/RS232 phy */
+	int			rxen_gpio;    /* If a valid gpio is mapped here, we will use it for disabling the RX echo while in RS485 mode */
 
 	struct pm_qos_request	pm_qos_request;
 	u32			latency;
 	u32			calc_latency;
 	struct work_struct	qos_work;
-	bool			is_suspending;
+	bool		is_suspending;
 	struct platform_device* plugin1dev;
 	struct platform_device* plugin2dev;
+	int			mode_two_lines_only;
 #ifdef EXOR_MPI
 	struct s_MPIdata MPIdata;
 #endif
@@ -991,6 +992,23 @@ static void serial_omap_stop_tx(struct uart_port *port)
 				return;
 			}
 		}
+		else
+		{
+			if (up->mode_two_lines_only)
+			{
+				if(gpio_is_valid(up->rts_gpio))
+				{
+					/* if rts not already disabled */
+					res = (port->rs485.flags & SER_RS485_RTS_AFTER_SEND) ? 1 : 0;
+					if (gpio_get_value(up->rts_gpio) != res) {
+						if (port->rs485.delay_rts_after_send > 0) {
+							mdelay(port->rs485.delay_rts_after_send);
+						}
+						gpio_set_value(up->rts_gpio, res);
+					}
+				}
+			}
+		}
 	}
 	if (up->ier & UART_IER_THRI) {
 		up->ier &= ~UART_IER_THRI;
@@ -1064,6 +1082,24 @@ static void serial_omap_stop_tx(struct uart_port *port)
 			return;
 		}
 	}
+	else
+	{
+		if (up->mode_two_lines_only)
+		{
+			if(gpio_is_valid(up->rts_gpio))
+			{
+				/* if rts not already disabled */
+				res = (port->rs485.flags & SER_RS485_RTS_AFTER_SEND) ? 1 : 0;
+				if (gpio_get_value(up->rts_gpio) != res) {
+					if (port->rs485.delay_rts_after_send > 0) {
+						mdelay(port->rs485.delay_rts_after_send);
+					}
+					gpio_set_value(up->rts_gpio, res);
+				}
+			}
+		}
+	}
+
 	if (up->ier & UART_IER_THRI) {
 		up->ier &= ~UART_IER_THRI;
 		serial_out(up, UART_IER, up->ier);
@@ -6370,6 +6406,14 @@ static int serial_omap_probe_rs485(struct uart_omap_port *up,
 	{
 	  up->plugin2dev = of_find_device_by_node(plxxnp);
 	  of_node_put(plxxnp);
+	}
+
+	if (of_property_read_bool(np, "mode-two-lines-only"))
+	{
+		up->mode_two_lines_only = 1;
+		dev_dbg(up->port.dev, "Setting UART /dev/ttyO%d with two wires serial mode \n", up->port.line );
+	} else {
+		up->mode_two_lines_only = 0;
 	}
 
 	return 0;
