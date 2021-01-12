@@ -158,7 +158,7 @@
 		compatible = "exor,gpio_initializer";
 		pinctrl-names = "default";
 
-		gpios = <&gpio2 1  0x21>, <&gpio1 19 0x21>, <&gpio3 15 0x21>, <&gpio3 16 0x21>, <&gpio3 17 0x21>, <&gpio3 21 0x21>,
+		gpios = <&gpio2 1  0x21>, <&gpio1 19 0x21>, <&gpio3 17 0x21>, <&gpio3 15 0x21>, <&gpio3 16 0x21>, <&gpio3 21 0x21>,
 		        <&gpio3 14 0x20>, <&gpio1 18 0x20>, <&gpio2 18 0x20>, <&gpio2 19 0x20>, <&gpio2 20 0x20>, <&gpio2 21 0x20>;
 
 		gpio-names = "flt12", "flt34", "in1",  "in2",  "in3",  "in4",
@@ -556,14 +556,14 @@
 
 	spi0_pins: pinmux_spi0_pins {
 		pinctrl-single,pins = <
-			AM33XX_IOPAD(0x950, PIN_INPUT | MUX_MODE0) /* (A17) spi0_sclk.spi0_sclk */
-			AM33XX_IOPAD(0x954, PIN_INPUT | MUX_MODE0) /* (B17) spi0_d0.spi0_d0 */
-			AM33XX_IOPAD(0x958, PIN_INPUT | MUX_MODE0) /* (B16) spi0_d1.spi0_d1 */
-			AM33XX_IOPAD(0x95c, PIN_INPUT | MUX_MODE0) /* (A16) spi0_cs0.spi0_cs0 */
-			AM33XX_IOPAD(0x960, PIN_INPUT | MUX_MODE0) /* (C15) spi0_cs1.spi0_cs1 */
-			AM33XX_IOPAD(0x828, PIN_INPUT | MUX_MODE7) /* (T11) gpmc_ad10.gpio0[26] */
-			AM33XX_IOPAD(0x82c, PIN_INPUT | MUX_MODE7) /* (U12) gpmc_ad11.gpio0[27] */
-			AM33XX_IOPAD(0x824, PIN_INPUT | MUX_MODE7) /* (T10) gpmc_ad9.gpio0[23] */
+			AM33XX_IOPAD(0x950, PIN_INPUT_PULLUP | MUX_MODE0) /* (A17) spi0_sclk.spi0_sclk */
+			AM33XX_IOPAD(0x954, PIN_INPUT_PULLUP | MUX_MODE0) /* (B17) spi0_d0.spi0_d0 */
+			AM33XX_IOPAD(0x958, PIN_INPUT_PULLUP | MUX_MODE0) /* (B16) spi0_d1.spi0_d1 */
+			AM33XX_IOPAD(0x95c, PIN_INPUT_PULLUP | MUX_MODE0) /* (A16) spi0_cs0.spi0_cs0 */
+			AM33XX_IOPAD(0x960, PIN_INPUT_PULLUP | MUX_MODE0) /* (C15) spi0_cs1.spi0_cs1 */
+			AM33XX_IOPAD(0x828, PIN_OUTPUT_PULLUP | MUX_MODE7) /* (T11) gpmc_ad10.gpio0[26] SEL_CS_SPI2 */
+			AM33XX_IOPAD(0x82c, PIN_OUTPUT_PULLUP | MUX_MODE7) /* (U12) gpmc_ad11.gpio0[27] SEL_CS_SPI1 */
+			AM33XX_IOPAD(0x824, PIN_OUTPUT_PULLUP | MUX_MODE7) /* (T10) gpmc_ad9.gpio0[23] SEL_SER_CAN */
 
 		>;
 	};
