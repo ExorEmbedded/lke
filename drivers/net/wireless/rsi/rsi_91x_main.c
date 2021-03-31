@@ -29,7 +29,7 @@ u32 rsi_zone_enabled = /* INFO_ZONE |
 			DATA_RX_ZONE |
 			FSM_ZONE |
 			ISR_ZONE | */
-			ERR_ZONE |
+			ERR_ZONE | INFO_ZONE |
 			0;
 EXPORT_SYMBOL_GPL(rsi_zone_enabled);
 
