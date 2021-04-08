@@ -21,15 +21,16 @@
 #include "rsi_mgmt.h"
 #include "rsi_common.h"
 
-u32 rsi_zone_enabled = /* INFO_ZONE |
+u32 rsi_zone_enabled = /* INFO_ZONE | */
 			INIT_ZONE |
+			/*
 			MGMT_TX_ZONE |
 			MGMT_RX_ZONE |
 			DATA_TX_ZONE |
 			DATA_RX_ZONE |
 			FSM_ZONE |
 			ISR_ZONE | */
-			ERR_ZONE | INFO_ZONE |
+			ERR_ZONE |
 			0;
 EXPORT_SYMBOL_GPL(rsi_zone_enabled);
 
