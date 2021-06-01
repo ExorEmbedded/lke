@@ -55,7 +55,7 @@
 #define OMAP_I2C_REV_ON_4430_PLUS	0x50400002
 
 /* timeout waiting for the controller to respond */
-#define OMAP_I2C_TIMEOUT (msecs_to_jiffies(1000))
+#define OMAP_I2C_TIMEOUT (msecs_to_jiffies(10*1000))
 
 /* timeout for pm runtime autosuspend */
 #define OMAP_I2C_PM_TIMEOUT		1000	/* ms */
@@ -1106,7 +1106,7 @@ omap_i2c_isr_thread(int this_irq, void *dev_id)
 		}
 
 		dev_dbg(omap->dev, "IRQ (ISR = 0x%04x)\n", stat);
-		if (count++ == 100) {
+		if (count++ == 300) {
 			dev_warn(omap->dev, "Too much work in one IRQ\n");
 			break;
 		}
