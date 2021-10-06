@@ -1871,7 +1871,7 @@ enum hrtimer_restart hrtCallBack(struct hrtimer *phrt)
 
 void MPIDriverInit(struct s_MPIdata *pMPIdata)
 {
-	hrtimer_init(&pMPIdata->hrt, CLOCK_MONOTONIC,HRTIMER_MODE_REL);
+	hrtimer_init(&pMPIdata->hrt, CLOCK_MONOTONIC,HRTIMER_MODE_REL_HARD);
 	pMPIdata->hrt.function = hrtCallBack;
 	pMPIdata->MPIenabled = false;
 
@@ -2031,7 +2031,7 @@ void UltiUART1_StartTimer(struct s_MPIdata *pMPIdata, unsigned char ev, int time
 	ktime_t kt = ktime_set(timeoutUSec / 1000000, (timeoutUSec % 1000000)*1000);
    pMPIdata->UltiUart1_TxTimeout = ev;
    pMPIdata->UltiUart1_TxNunUSec = timeoutUSec;
-   hrtimer_start( &pMPIdata->hrt, kt, HRTIMER_MODE_REL );
+   hrtimer_start( &pMPIdata->hrt, kt, HRTIMER_MODE_REL_HARD );
 }
 
 void UltiUart1_StopTimer(struct s_MPIdata *pMPIdata)
