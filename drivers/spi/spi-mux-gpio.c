@@ -31,6 +31,8 @@
 #include <linux/wait.h>
 #include <linux/spi/spi.h>
 
+#define SPI_MUX_NO_CS	((unsigned)-1)
+
 /*
  * This driver supports a MUX on an SPI bus. This can be useful when you need
  * more chip selects than the hardware peripherals support, or than are
@@ -92,8 +94,6 @@ static int spi_mux_gpio_setup_mux(struct spi_device *spi)
                        spi->chip_select);
 
                /* copy the child device's settings except for the cs */
-               if (spi->max_speed_hz < mux->spi->max_speed_hz)
-                       mux->spi->max_speed_hz = spi->max_speed_hz;
                mux->spi->mode = spi->mode;
                mux->spi->bits_per_word = spi->bits_per_word;
 
@@ -251,7 +251,7 @@ static int spi_mux_gpio_probe(struct spi_device *spi)
                goto err_probe_dt;
 
        initial_state = mux->values[0];
-       mux->current_cs = 0;
+       mux->current_cs = SPI_MUX_NO_CS;
 
        for (i = 0; i < mux->n_gpios; i++) {
                devm_gpio_request(&spi->dev, mux->gpios[i], "spi-mux-gpio");
