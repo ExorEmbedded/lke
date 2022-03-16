@@ -19,12 +19,6 @@
 		can1 = &dcan1;
 	};
 
-	cpus {
-		cpu@0 {
-			cpu0-supply = <&vdd1_reg>;
-		};
-	};
-
 	memory@80000000 {
 		device_type = "memory";
 		reg = <0x80000000 0x10000000>; /* 256 MB */
@@ -106,6 +100,15 @@
 		regulator-min-microvolt = <5000000>;
 		regulator-max-microvolt = <5000000>;
 		regulator-boot-on;
+	};
+
+	vmmc_reg: fixedregulator@1 {
+		compatible = "regulator-fixed";
+		regulator-name = "vmmc";
+		regulator-min-microvolt = <3300000>;
+		regulator-max-microvolt = <3300000>;
+		regulator-boot-on;
+		regulator-always-on;
 	};
 
 	backlight0: backlight {
@@ -251,11 +254,6 @@
 		restart-if-fails;
 	};
 
-	tps: tps@2d {
-		/* Chip alimentazioni uSom */
-		reg = <0x2d>;
-	};
-
 	seeprom1:seeprom1@50 {
 		/* seeprom1 uSom */
 		compatible = "atmel,24c02";
@@ -386,85 +384,6 @@
 		status = "okay";
 		pinctrl-names = "default";
 		pinctrl-0 = <&pwm0_dimm_pins_default>;
-	};
-};
-
-#include "tps65910.dtsi"
-
-&tps {
-	vcc1-supply = <&vbat>;
-	vcc2-supply = <&vbat>;
-	vcc3-supply = <&vbat>;
-	vcc4-supply = <&vbat>;
-	vcc5-supply = <&vbat>;
-	vcc6-supply = <&vbat>;
-	vcc7-supply = <&vbat>;
-	vccio-supply = <&vbat>;
-
-	regulators {
-		vrtc_reg: regulator@0 {
-			regulator-always-on;
-		};
-
-		vio_reg: regulator@1 {
-			regulator-always-on;
-		};
-
-		vdd1_reg: regulator@2 {
-			/* VDD_MPU voltage limits 0.95V - 1.325V with +/-4% tolerance */
-			regulator-name = "vdd_mpu";
-			regulator-min-microvolt = <912500>;
-			regulator-max-microvolt = <1378000>;
-			regulator-boot-on;
-			regulator-always-on;
-		};
-
-		vdd2_reg: regulator@3 {
-			/* VDD_CORE voltage limits 0.95V - 1.1V with +/-4% tolerance */
-			regulator-name = "vdd_core";
-			regulator-min-microvolt = <912500>;
-			regulator-max-microvolt = <1150000>;
-			regulator-boot-on;
-			regulator-always-on;
-		};
-
-		vdd3_reg: regulator@4 {
-			regulator-always-on;
-		};
-
-		vdig1_reg: regulator@5 {
-			regulator-always-on;
-		};
-
-		vdig2_reg: regulator@6 {
-			regulator-always-on;
-		};
-
-		vpll_reg: regulator@7 {
-			regulator-always-on;
-		};
-
-		vdac_reg: regulator@8 {
-			regulator-always-on;
-		};
-
-		vaux1_reg: regulator@9 {
-			regulator-always-on;
-		};
-
-		vaux2_reg: regulator@10 {
-			regulator-always-on;
-		};
-
-		vaux33_reg: regulator@11 {
-			regulator-always-on;
-		};
-
-		vmmc_reg: regulator@12 {
-			regulator-min-microvolt = <1800000>;
-			regulator-max-microvolt = <3300000>;
-			regulator-always-on;
-		};
 	};
 };
 
