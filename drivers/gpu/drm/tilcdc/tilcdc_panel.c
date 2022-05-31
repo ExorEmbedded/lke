@@ -58,7 +58,7 @@ void set_timings( struct timing_entry *tms, u32 value )
     tms->typ = value;
 }
 
-struct display_timings *dispid_get_timings(int dispid)
+struct display_timings *dispid_get_timings(int dispid, int* f_pclkinv)
 {
 	int i=0;
 	struct display_timings *disp;
@@ -126,7 +126,10 @@ struct display_timings *dispid_get_timings(int dispid)
 	if(displayconfig[i].pclk_inv == 0)
 		disp->timings[disp->num_timings]->flags |= DISPLAY_FLAGS_PIXDATA_POSEDGE;
 	else
+	{
 		disp->timings[disp->num_timings]->flags |= DISPLAY_FLAGS_PIXDATA_NEGEDGE;	
+		*f_pclkinv = 1;
+	}
 	
 	disp->num_timings ++;
 
@@ -417,6 +420,7 @@ static int panel_probe(struct platform_device *pdev)
 	struct tilcdc_module *mod;
 	struct pinctrl *pinctrl;
 	int ret;
+	int f_pclkinv = 0;
 
 	/* bail out early if no DT data: */
 	if (!node) {
@@ -459,7 +463,7 @@ static int panel_probe(struct platform_device *pdev)
 	if (IS_ERR(pinctrl))
 		dev_warn(&pdev->dev, "pins are not configured\n");
 	
-	panel_mod->timings = dispid_get_timings( hw_dispid);
+	panel_mod->timings = dispid_get_timings( hw_dispid, &f_pclkinv);
 	if(panel_mod->timings)
 	{
 	  dev_info(&pdev->dev, "found display timings entry in displayconfig.h \n");
@@ -480,6 +484,11 @@ static int panel_probe(struct platform_device *pdev)
 		dev_err(&pdev->dev, "could not get panel info\n");
 		ret = -EINVAL;
 		goto fail_timings;
+	}
+	
+	if(f_pclkinv)
+	{
+		panel_mod->info->invert_pxl_clk = true;
 	}
 
 	return 0;
