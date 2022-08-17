@@ -1435,20 +1435,7 @@ static int plxx_probe(struct platform_device *pdev)
   if(plcm09_init(data) >= 0)
     version = PLCMxx_VERSION_09;
   else if (plcm10_init(data,&wifiport) >= 0)
-  {
-    if(!data->f_updated)
-    {
-      UpdatePluginData(data);
-      data->f_updated = true;
-    }
-    AssignPlcmVersion(data);
-    version = data->plcmversion;
-    if (version == PLCMxx_VERSION_INVALID) // driver compability with older devices
-      version = PLCMxx_VERSION_09;
-    if (!wifiport &&
-        ((version == PLCMxx_VERSION_10) || (version == PLCMxx_VERSION_12)))
-        printk("plxx unable to initialize wifi I2C device\n");
-  }
+    version = PLCMxx_VERSION_10;
 
   if (version!=PLCMxx_VERSION_INVALID)
   {
