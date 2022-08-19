@@ -200,11 +200,12 @@ init_end:
 
 /* Checks the PLCM10 presence and, if present, initializes the gpio expanders
  */
-static int plcm10_init(struct plxx_data *data)
+static int plcm10_init(struct plxx_data *data,bool* wifiport)
 {
   struct i2c_msg msg;
   int ret = 0;
   unsigned char buf[2];
+  *wifiport = false;
 
   struct i2c_adapter* adapter = i2c_get_adapter(0);
   if(!adapter)
@@ -256,13 +257,14 @@ static int plcm10_init(struct plxx_data *data)
   buf[1] = 0x00; //All outs = 0
   ret = i2c_transfer(adapter, &msg, 1);
   if(ret < 0)
-    return ret;
+    return 0; // PLCM10B does not have U23 (wifiport = false)
 
   buf[0] = PLCMxx_CFGREG;
   buf[1] = 0;
   ret = i2c_transfer(adapter, &msg, 1);
   if(ret < 0)
     return ret;
+  *wifiport = true;
   
   return 0;
 }
@@ -1128,7 +1130,11 @@ void AssignPlcmVersion(struct plxx_data* data)
     return;
 
   hwcode = data->eeprom[SEE_CODE_OFF];
-  funcarea = data->eeprom[SEE_FUNCT_AREA_OFF] + (data->eeprom[SEE_FUNCT_AREA_OFF+1] << 8);
+
+  // Note: currently maps up to max 3B/24b
+  funcarea = data->eeprom[SEE_FUNCT_AREA_OFF] +
+      (data->eeprom[SEE_FUNCT_AREA_OFF+1] << 8) +
+      (data->eeprom[SEE_FUNCT_AREA_OFF+2] << 16);
 
   if (funcarea & (0x01 << FFA_PLCM09))
     data->plcmversion = PLCMxx_VERSION_09;
@@ -1392,6 +1398,7 @@ static int UpdatePluginData(struct plxx_data *data)
  */
 static int plxx_probe(struct platform_device *pdev)
 {
+  bool wifiport = false;
   int res = 0;
   int version;
   struct plxx_data *data;  
@@ -1424,9 +1431,10 @@ static int plxx_probe(struct platform_device *pdev)
   //PLCMxx detection and init
   data->plcmversion = PLCMxx_VERSION_INVALID;
   version = PLCMxx_VERSION_INVALID;
+
   if(plcm09_init(data) >= 0)
     version = PLCMxx_VERSION_09;
-  else if (plcm10_init(data)>=0)
+  else if (plcm10_init(data,&wifiport) >= 0)
     version = PLCMxx_VERSION_10;
 
   if (version!=PLCMxx_VERSION_INVALID)
