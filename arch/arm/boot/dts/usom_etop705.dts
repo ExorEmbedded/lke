@@ -40,7 +40,7 @@
 		regulator-always-on;
 		gpio = <&pca9555 2 0>;
 	};
-#if 0
+
 	backlight0: backlight {
 		compatible = "pwm-backlight";
 		pwms = <&ecap0 0 50000 0>;
@@ -48,7 +48,7 @@
 		default-brightness-level = <0>;
 		enable-gpios = <&gpio2 0 0>;
 	};
-#endif
+
 	leds {
 		pinctrl-names = "default", "sleep";
 		pinctrl-0 = <&user_leds_default>;
@@ -105,7 +105,7 @@
 	  compatible = "pwm-beeper";
 	  pwms = <&pwm 0 50000 0>;
 	};
-	
+#endif	
 	panel {
 		compatible = "ti,tilcdc,panel";
 		status = "okay";
@@ -141,7 +141,6 @@
 			};
 		};
 	};
-#endif
 };
 &uart0 {
 	/delete-property/dmas;
@@ -282,7 +281,7 @@
 &elm {
 	status = "okay";
 };
-#if 0
+
 &epwmss0 {
 	status = "okay";
 
@@ -293,7 +292,6 @@
 		pinctrl-1 = <&ecap0_pins_sleep>;
 	};
 };
-#endif
 
 &mac {
 	slaves = <2>;
@@ -345,16 +343,15 @@
 	ti,edma-xbar-event-map = <1 12
 				  2 13>;
 };
-#if 0
 &dcan0 {
 	pinctrl-names = "default";
 	pinctrl-0 = <&dcan0_default>;
 	status = "okay";
 };
+
 &lcdc {		
 	status = "okay";
 };
-#endif
 #if 0
 &sham {
 	status = "okay";
