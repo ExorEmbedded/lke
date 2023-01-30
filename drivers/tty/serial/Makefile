@@ -58,6 +58,7 @@ obj-$(CONFIG_SERIAL_UARTLITE) += uartlite.o
 obj-$(CONFIG_SERIAL_MSM) += msm_serial.o
 obj-$(CONFIG_SERIAL_QCOM_GENI) += qcom_geni_serial.o
 obj-$(CONFIG_SERIAL_OMAP) += omap-serial.o
+obj-$(CONFIG_SERIAL_OMAP_EXOR) += omap-exor-serial.o
 obj-$(CONFIG_SERIAL_ALTERA_UART) += altera_uart.o
 obj-$(CONFIG_SERIAL_ST_ASC) += st-asc.o
 obj-$(CONFIG_SERIAL_QE) += ucc_uart.o
