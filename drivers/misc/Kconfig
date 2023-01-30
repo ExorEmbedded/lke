@@ -478,6 +478,12 @@ config DMA_BUF_PHYS
 	help
 	  Exports CPU physical address of DMA-BUF to user-space.
 
+config WORKING_HOURS
+	tristate "working hours counters (non volatile)"
+	depends on EEPROM_AT24 && BACKLIGHT_PWM
+	help
+	    Say Y to add working hours counters in I2C EEPROM.
+	  
 source "drivers/misc/c2port/Kconfig"
 source "drivers/misc/eeprom/Kconfig"
 source "drivers/misc/cb710/Kconfig"

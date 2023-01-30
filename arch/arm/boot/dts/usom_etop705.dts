@@ -74,7 +74,7 @@
 	  ti,timers = <&timer6>;
 	  #pwm-cells = <3>;
 	};
-#if 0	
+
 	working_hours {
 	  compatible = "working_hours";
 	  nvmem-names = "eeprom", "rtcnvram";
@@ -82,7 +82,7 @@
 	  has-blight;
 	  status = "okay";
 	};	
-	
+#if 0	
 	plxx0: plugin0 {
 	  compatible = "exor,plxx_manager";
 	  nvmem-names = "eeprom", "ioexp";
