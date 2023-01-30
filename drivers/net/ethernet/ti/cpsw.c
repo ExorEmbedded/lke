@@ -1279,6 +1279,7 @@ static const struct ethtool_ops cpsw_ethtool_ops = {
 	.set_ringparam = cpsw_set_ringparam,
 };
 
+extern unsigned char hw_switch;
 static int cpsw_probe_dt(struct cpsw_platform_data *data,
 			 struct platform_device *pdev)
 {
@@ -1330,6 +1331,11 @@ static int cpsw_probe_dt(struct cpsw_platform_data *data,
 	if (of_property_read_bool(node, "dual_emac"))
 		data->dual_emac = true;
 
+	if ( 1 == hw_switch ) {
+	  pr_info("Enable hw switch %X \n", hw_switch);
+	  data->dual_emac = 0;
+	}	
+ 	
 	/*
 	 * Populate all the child nodes here...
 	 */
