@@ -82,7 +82,7 @@
 	  has-blight;
 	  status = "okay";
 	};	
-#if 0	
+
 	plxx0: plugin0 {
 	  compatible = "exor,plxx_manager";
 	  nvmem-names = "eeprom", "ioexp";
@@ -100,7 +100,7 @@
 	  index = <1>;
 	  status = "okay";
 	};
-#endif	
+
 	beeper {
 	  compatible = "pwm-beeper";
 	  pwms = <&pwm 0 50000 0>;
