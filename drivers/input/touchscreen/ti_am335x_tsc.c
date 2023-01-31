@@ -27,7 +27,8 @@
 #include <linux/of.h>
 #include <linux/of_device.h>
 #include <linux/sort.h>
-#include <linux/pm_wakeirq.h>
+#include <linux/hrtimer.h>
+#include <linux/ktime.h>
 
 #include <linux/mfd/ti_am335x_tscadc.h>
 
@@ -35,7 +36,9 @@
 #define SEQ_SETTLE		275
 #define MAX_12BIT		((1 << 12) - 1)
 
-#define TSC_IRQENB_MASK		(IRQENB_FIFO0THRES | IRQENB_EOS | IRQENB_HW_PEN)
+#define FUZZ_X			16
+#define FUZZ_Y			16
+#define FUZZ_Z			4
 
 static const int config_pins[] = {
 	STEPCONFIG_XPP,
@@ -47,7 +50,6 @@ static const int config_pins[] = {
 struct titsc {
 	struct input_dev	*input;
 	struct ti_tscadc_dev	*mfd_tscadc;
-	struct device		*dev;
 	unsigned int		irq;
 	unsigned int		wires;
 	unsigned int		x_plate_resistance;
@@ -165,7 +167,7 @@ static void titsc_step_config(struct titsc *ts_dev)
 		break;
 	case 5:
 		config |= ts_dev->bit_xp | STEPCONFIG_INP_AN4 |
-				STEPCONFIG_XNP | STEPCONFIG_YPN;
+				ts_dev->bit_xn | ts_dev->bit_yp;
 		break;
 	case 8:
 		config |= ts_dev->bit_yp | STEPCONFIG_INP(ts_dev->inp_xp);
@@ -242,6 +244,12 @@ static void titsc_read_coordinates(struct titsc *ts_dev,
 	 * readouts, sort the co-ordinate samples, drop
 	 * min and max values and report the average of
 	 * remaining values.
+	 * 
+	 * In case of 4 or more readouts, if a sample 
+	 * is "nearly" 0 or MAX_12BIT or we have an 
+	 * excessive difference (noise) among samples
+	 * z1 and z2 are seto to 0 to invalidate
+	 * this set of coordinates.
 	 */
 	if (creads <=  3) {
 		for (i = 0; i < creads; i++) {
@@ -261,9 +269,69 @@ static void titsc_read_coordinates(struct titsc *ts_dev,
 		}
 		ysum /= creads - 2;
 		xsum /= creads - 2;
+		
+		for (i = 0; i < creads; i++) 
+		{
+		  if( (xvals[i] < FUZZ_X) || (xvals[i] >  (MAX_12BIT - FUZZ_X)))
+		  {
+		    *z1 = 0;
+		    *z2 = 0;
+		    break;
+		  }
+
+		  if( (yvals[i] < FUZZ_Y) || (yvals[i] >  (MAX_12BIT - FUZZ_Y)))
+		  {
+		    *z1 = 0;
+		    *z2 = 0;
+		    break;
+		  }
+		  
+		  if((i > 1) && (i < (creads - 1)))
+		  {
+		    if( (xvals[i] - xvals[i-1]) > 2 * FUZZ_X)
+		    {
+		      *z1 = 0;
+		      *z2 = 0;
+		      break;
+		    }
+		      
+		    if( (yvals[i] - yvals[i-1]) > 2 * FUZZ_Y)
+		    {
+		      *z1 = 0;
+		      *z2 = 0;
+		      break;
+		    }
+		  }
+		}
 	}
 	*y = ysum;
 	*x = xsum;
+}
+
+#define MS_TO_NS(x)	(x * 1E6L)
+
+struct ts_timer_data
+{
+    ktime_t         period_down;
+    ktime_t         period_up;
+    struct hrtimer  timer;
+    struct titsc *timer_ts_dev;
+};
+
+static struct ts_timer_data *tmr;
+
+enum hrtimer_restart ts_tmr_callback( struct hrtimer *tmr )
+{
+    struct ts_timer_data  *ts_tmr_dat = container_of(tmr, struct ts_timer_data, timer);
+    struct titsc          *ts_dev = ts_tmr_dat->timer_ts_dev;
+    struct input_dev      *input_dev  = ts_dev->input;
+
+    ts_dev->pen_down = false;
+    input_report_key(input_dev, BTN_TOUCH, 0);
+    input_report_abs(input_dev, ABS_PRESSURE, 0);
+    input_sync(input_dev);
+
+    return HRTIMER_NORESTART;
 }
 
 static irqreturn_t titsc_irq(int irq, void *dev)
@@ -272,25 +340,38 @@ static irqreturn_t titsc_irq(int irq, void *dev)
 	struct input_dev *input_dev = ts_dev->input;
 	unsigned int fsm, status, irqclr = 0;
 	unsigned int x = 0, y = 0;
-	unsigned int z1, z2, z;
+	unsigned int z1, z2, z, tmp;
+	unsigned int max_rt;
+
+	//Timer restart, workaround ticket 11656
+	if(  hrtimer_active(&tmr->timer) )
+	    hrtimer_forward_now(&tmr->timer, tmr->period_down );
 
 	status = titsc_readl(ts_dev, REG_RAWIRQSTATUS);
 	if (status & IRQENB_HW_PEN) {
 		ts_dev->pen_down = true;
+		titsc_writel(ts_dev, REG_IRQWAKEUP, 0x00);
+		titsc_writel(ts_dev, REG_IRQCLR, IRQENB_HW_PEN);
 		irqclr |= IRQENB_HW_PEN;
-		pm_stay_awake(ts_dev->dev);
+		//Start del timer a 250 ms;
+		hrtimer_start(&tmr->timer, tmr->period_down, HRTIMER_MODE_REL);
 	}
 
 	if (status & IRQENB_PENUP) {
 		fsm = titsc_readl(ts_dev, REG_ADCFSM);
 		if (fsm == ADCFSM_STEPID) {
-			ts_dev->pen_down = false;
-			input_report_key(input_dev, BTN_TOUCH, 0);
-			input_report_abs(input_dev, ABS_PRESSURE, 0);
-			input_sync(input_dev);
-			pm_relax(ts_dev->dev);
+			//ts_dev->pen_down = false;
+			//input_report_key(input_dev, BTN_TOUCH, 0);
+			//input_report_abs(input_dev, ABS_PRESSURE, 0);
+			//input_sync(input_dev);
+
+			//Stop timer, workaround ticket 11656  --> Barbatrucco, non esiste un vero e proprio stop;
+			hrtimer_start(&tmr->timer, tmr->period_up, HRTIMER_MODE_REL);
+
 		} else {
 			ts_dev->pen_down = true;
+			//Start timer 250 ms, workaround ticket 11656;
+			hrtimer_start(&tmr->timer, tmr->period_down, HRTIMER_MODE_REL);
 		}
 		irqclr |= IRQENB_PENUP;
 	}
@@ -312,13 +393,22 @@ static irqreturn_t titsc_irq(int irq, void *dev)
 			 * Resistance(touch) = x plate resistance *
 			 * x postion/4096 * ((z2 / z1) - 1)
 			 */
+			if(z2 > z1)
+			{
+			  tmp=z2;
+			  z2=z1;
+			  z1=tmp;
+			}
+			
 			z = z1 - z2;
 			z *= x;
 			z *= ts_dev->x_plate_resistance;
 			z /= z2;
 			z = (z + 2047) >> 12;
-
-			if (z <= MAX_12BIT) {
+			
+			max_rt = (3 * ts_dev->x_plate_resistance) / 2;
+			
+			if (z <= max_rt) {
 				input_report_abs(input_dev, ABS_X, x);
 				input_report_abs(input_dev, ABS_Y, y);
 				input_report_abs(input_dev, ABS_PRESSURE, z);
@@ -412,19 +502,20 @@ static int titsc_probe(struct platform_device *pdev)
 	int err;
 
 	/* Allocate memory for device */
-	ts_dev = kzalloc(sizeof(*ts_dev), GFP_KERNEL);
+	ts_dev = kzalloc(sizeof(struct titsc), GFP_KERNEL);
 	input_dev = input_allocate_device();
 	if (!ts_dev || !input_dev) {
 		dev_err(&pdev->dev, "failed to allocate memory.\n");
 		err = -ENOMEM;
 		goto err_free_mem;
 	}
+	
+	memset(ts_dev, 0, sizeof(struct titsc));
 
 	tscadc_dev->tsc = ts_dev;
 	ts_dev->mfd_tscadc = tscadc_dev;
 	ts_dev->input = input_dev;
 	ts_dev->irq = tscadc_dev->irq;
-	ts_dev->dev = &pdev->dev;
 
 	err = titsc_parse_dt(pdev, ts_dev);
 	if (err) {
@@ -439,14 +530,6 @@ static int titsc_probe(struct platform_device *pdev)
 		goto err_free_mem;
 	}
 
-	device_init_wakeup(&pdev->dev, true);
-	err = dev_pm_set_wake_irq(&pdev->dev, ts_dev->irq);
-	if (err)
-		dev_err(&pdev->dev, "irq wake enable failed.\n");
-
-	titsc_writel(ts_dev, REG_IRQSTATUS, TSC_IRQENB_MASK);
-	titsc_writel(ts_dev, REG_IRQENABLE, IRQENB_FIFO0THRES);
-	titsc_writel(ts_dev, REG_IRQENABLE, IRQENB_EOS);
 	err = titsc_config_wires(ts_dev);
 	if (err) {
 		dev_err(&pdev->dev, "wrong i/p wire configuration\n");
@@ -462,9 +545,9 @@ static int titsc_probe(struct platform_device *pdev)
 	input_dev->evbit[0] = BIT_MASK(EV_KEY) | BIT_MASK(EV_ABS);
 	input_dev->keybit[BIT_WORD(BTN_TOUCH)] = BIT_MASK(BTN_TOUCH);
 
-	input_set_abs_params(input_dev, ABS_X, 0, MAX_12BIT, 0, 0);
-	input_set_abs_params(input_dev, ABS_Y, 0, MAX_12BIT, 0, 0);
-	input_set_abs_params(input_dev, ABS_PRESSURE, 0, MAX_12BIT, 0, 0);
+	input_set_abs_params(input_dev, ABS_X, 0, MAX_12BIT, FUZZ_X, 0);
+	input_set_abs_params(input_dev, ABS_Y, 0, MAX_12BIT, FUZZ_Y, 0);
+	input_set_abs_params(input_dev, ABS_PRESSURE, 0, MAX_12BIT, FUZZ_Z, 0);
 
 	/* register to the input system */
 	err = input_register_device(input_dev);
@@ -472,11 +555,21 @@ static int titsc_probe(struct platform_device *pdev)
 		goto err_free_irq;
 
 	platform_set_drvdata(pdev, ts_dev);
+
+	//Init timer, workaround ticket 11656
+	tmr = kmalloc(sizeof(struct ts_timer_data), GFP_KERNEL);
+	hrtimer_init(&tmr->timer, CLOCK_MONOTONIC, HRTIMER_MODE_REL);
+	tmr->period_up = ktime_set(0, MS_TO_NS(10L));
+	tmr->period_down = ktime_set(0,  MS_TO_NS(250L));
+	tmr->timer_ts_dev = ts_dev;
+	tmr->timer.function = ts_tmr_callback;
+
+	titsc_writel(ts_dev, REG_IRQENABLE, IRQENB_FIFO0THRES);
+	titsc_writel(ts_dev, REG_IRQENABLE, IRQENB_EOS);
+	
 	return 0;
 
 err_free_irq:
-	dev_pm_clear_wake_irq(&pdev->dev);
-	device_init_wakeup(&pdev->dev, false);
 	free_irq(ts_dev->irq, ts_dev);
 err_free_mem:
 	input_free_device(input_dev);
@@ -489,8 +582,6 @@ static int titsc_remove(struct platform_device *pdev)
 	struct titsc *ts_dev = platform_get_drvdata(pdev);
 	u32 steps;
 
-	dev_pm_clear_wake_irq(&pdev->dev);
-	device_init_wakeup(&pdev->dev, false);
 	free_irq(ts_dev->irq, ts_dev);
 
 	/* total steps followed by the enable mask */
@@ -501,16 +592,22 @@ static int titsc_remove(struct platform_device *pdev)
 	input_unregister_device(ts_dev->input);
 
 	kfree(ts_dev);
+
+	hrtimer_cancel(&tmr->timer);
+	kfree(tmr);
+
 	return 0;
 }
 
-static int __maybe_unused titsc_suspend(struct device *dev)
+#ifdef CONFIG_PM
+static int titsc_suspend(struct device *dev)
 {
 	struct titsc *ts_dev = dev_get_drvdata(dev);
+	struct ti_tscadc_dev *tscadc_dev;
 	unsigned int idle;
 
-	if (device_may_wakeup(dev)) {
-		titsc_writel(ts_dev, REG_IRQSTATUS, TSC_IRQENB_MASK);
+	tscadc_dev = ti_tscadc_dev_get(to_platform_device(dev));
+	if (device_may_wakeup(tscadc_dev->dev)) {
 		idle = titsc_readl(ts_dev, REG_IRQENABLE);
 		titsc_writel(ts_dev, REG_IRQENABLE,
 				(idle | IRQENB_HW_PEN));
@@ -519,15 +616,16 @@ static int __maybe_unused titsc_suspend(struct device *dev)
 	return 0;
 }
 
-static int __maybe_unused titsc_resume(struct device *dev)
+static int titsc_resume(struct device *dev)
 {
 	struct titsc *ts_dev = dev_get_drvdata(dev);
+	struct ti_tscadc_dev *tscadc_dev;
 
-	if (device_may_wakeup(dev)) {
+	tscadc_dev = ti_tscadc_dev_get(to_platform_device(dev));
+	if (device_may_wakeup(tscadc_dev->dev)) {
 		titsc_writel(ts_dev, REG_IRQWAKEUP,
 				0x00);
 		titsc_writel(ts_dev, REG_IRQCLR, IRQENB_HW_PEN);
-		pm_relax(dev);
 	}
 	titsc_step_config(ts_dev);
 	titsc_writel(ts_dev, REG_FIFO0THR,
@@ -535,7 +633,14 @@ static int __maybe_unused titsc_resume(struct device *dev)
 	return 0;
 }
 
-static SIMPLE_DEV_PM_OPS(titsc_pm_ops, titsc_suspend, titsc_resume);
+static const struct dev_pm_ops titsc_pm_ops = {
+	.suspend = titsc_suspend,
+	.resume  = titsc_resume,
+};
+#define TITSC_PM_OPS (&titsc_pm_ops)
+#else
+#define TITSC_PM_OPS NULL
+#endif
 
 static const struct of_device_id ti_tsc_dt_ids[] = {
 	{ .compatible = "ti,am3359-tsc", },
@@ -548,8 +653,9 @@ static struct platform_driver ti_tsc_driver = {
 	.remove	= titsc_remove,
 	.driver	= {
 		.name   = "TI-am335x-tsc",
-		.pm	= &titsc_pm_ops,
-		.of_match_table = ti_tsc_dt_ids,
+		.owner	= THIS_MODULE,
+		.pm	= TITSC_PM_OPS,
+		.of_match_table = of_match_ptr(ti_tsc_dt_ids),
 	},
 };
 module_platform_driver(ti_tsc_driver);
