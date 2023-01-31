@@ -238,7 +238,8 @@ static int cypress_compute_slot(struct mt_application *application,
 static const struct mt_class mt_classes[] = {
 	{ .name = MT_CLS_DEFAULT,
 		.quirks = MT_QUIRK_ALWAYS_VALID |
-			MT_QUIRK_CONTACT_CNT_ACCURATE },
+			MT_QUIRK_CONTACT_CNT_ACCURATE |
+			MT_QUIRK_NOT_SEEN_MEANS_UP},
 	{ .name = MT_CLS_NSMU,
 		.quirks = MT_QUIRK_NOT_SEEN_MEANS_UP },
 	{ .name = MT_CLS_SERIAL,
