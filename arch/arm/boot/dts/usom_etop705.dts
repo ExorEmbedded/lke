@@ -118,7 +118,7 @@
 		pinctrl-names = "default", "sleep";
 		pinctrl-0 = <&lcd_pins_default>;
 		pinctrl-1 = <&lcd_pins_sleep>;
-		enable-gpio = <&gpio1 29 0>;
+		enable-gpios = <&gpio1 29 0>;
 		panel-info {
 			ac-bias           = <255>;
 			ac-bias-intrpt    = <0>;
