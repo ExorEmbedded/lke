@@ -196,16 +196,7 @@
 	status = "okay";
 };
 
-&usb1_phy {
-	status = "okay";
-};
-
 &usb0 {
-	status = "okay";
-	dr_mode = "host";
-};
-
-&usb1 {
 	status = "okay";
 	dr_mode = "host";
 };
