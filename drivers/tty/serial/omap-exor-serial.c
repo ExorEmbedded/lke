@@ -6360,7 +6360,10 @@ static int serial_omap_probe_rs485(struct uart_omap_port *up,
 	  rs485conf->flags |= SER_RS485_RTS_AFTER_SEND;
 
 	/* check for tx enable gpio */
-	up->rts_gpio = of_get_named_gpio_flags(np, "rts-gpio", 0, &flags);
+	up->rts_gpio = of_get_named_gpio(np, "rts-gpio", 0);
+	if(up->rts_gpio == -EPROBE_DEFER)
+		return -EPROBE_DEFER;
+	
 	if (gpio_is_valid(up->rts_gpio)) {
 		ret = gpio_request(up->rts_gpio, "omap-serial");
 		if (ret < 0)
