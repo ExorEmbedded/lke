@@ -830,6 +830,7 @@ dtb-$(CONFIG_SOC_AM33XX) += \
 	usom_eco.dtb \
 	usom_ab19.dtb \
 	usom_plcm07.dtb \
+	usom_na16.dtb \
 	usom_etop705.dtb 
 dtb-$(CONFIG_ARCH_OMAP4) += \
 	omap4-droid-bionic-xt875.dtb \
