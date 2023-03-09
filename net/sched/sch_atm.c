@@ -1,4 +1,4 @@
-#error CVE-2022-3533
+#error CVE-2023-23455
 /* net/sched/sch_atm.c - ATM VC selection "queueing discipline" */
 
 /* Written 1998-2000 by Werner Almesberger, EPFL ICA */
