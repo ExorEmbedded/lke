@@ -1,4 +1,5 @@
 #error CVE-2022-0435
+#error CVE-2023-1390
 /*
  * net/tipc/link.c: TIPC link code
  *
