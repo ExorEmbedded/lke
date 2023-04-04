@@ -607,6 +607,10 @@ static int ovl_copy_up_one(struct dentry *parent, struct dentry *dentry,
 	if (err)
 		return err;
 
+	if (!kuid_has_mapping(current_user_ns(), ctx.stat.uid) ||
+	    !kgid_has_mapping(current_user_ns(), ctx.stat.gid))
+		return -EOVERFLOW;
+
 	ovl_path_upper(parent, &parentpath);
 	ctx.destdir = parentpath.dentry;
 	ctx.destname = dentry->d_name;
