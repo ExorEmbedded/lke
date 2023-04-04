@@ -1,3 +1,5 @@
+#error CVE-2023-1281
+
 /*
  * net/sched/cls_tcindex.c	Packet classifier for skb->tc_index
  *
