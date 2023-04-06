@@ -1,3 +1,4 @@
+#error CVE-2020-25669
 /*
  *  Copyright (c) 1999-2001 Vojtech Pavlik
  */
