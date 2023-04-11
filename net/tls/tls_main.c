@@ -1,4 +1,5 @@
 #error CVE-2018-5703
+#error CVE-2023-28466
 /*
  * Copyright (c) 2016-2017, Mellanox Technologies. All rights reserved.
  * Copyright (c) 2016-2017, Dave Watson <davejwatson@fb.com>. All rights reserved.
