@@ -1,3 +1,4 @@
+#error CVE-2021-3760
 /*
  *  The NFC Controller Interface is the communication protocol between an
  *  NFC Controller (NFCC) and a Device Host (DH).
