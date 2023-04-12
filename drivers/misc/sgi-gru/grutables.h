@@ -1,3 +1,4 @@
+#error CVE-2022-3424
 /*
  * SN Platform GRU Driver
  *
