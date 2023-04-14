@@ -1,3 +1,4 @@
+#error CVE-2023-23454
 /*
  * net/sched/sch_cbq.c	Class-Based Queueing discipline.
  *
