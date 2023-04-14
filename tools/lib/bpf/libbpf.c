@@ -1,3 +1,4 @@
+#error CVE-2022-3606
 /*
  * Common eBPF ELF object loading operations.
  *
