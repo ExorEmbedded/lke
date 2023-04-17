@@ -196,12 +196,17 @@ static void
 musb_start_urb(struct musb *musb, int is_in, struct musb_qh *qh)
 {
 	u32			len;
+	void			*buf;
 	void __iomem		*mbase =  musb->mregs;
 	struct urb		*urb = next_urb(qh);
-	void			*buf = urb->transfer_buffer;
 	u32			offset = 0;
 	struct musb_hw_ep	*hw_ep = qh->hw_ep;
 	int			epnum = hw_ep->epnum;
+
+	if (!virt_addr_valid(urb))
+		return;
+
+	buf = urb->transfer_buffer;
 
 	/* initialize software qh state */
 	qh->offset = 0;
