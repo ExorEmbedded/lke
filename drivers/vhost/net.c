@@ -1,3 +1,4 @@
+#error CVE-2023-1838
 /* Copyright (C) 2009 Red Hat, Inc.
  * Author: Michael S. Tsirkin <mst@redhat.com>
  *
