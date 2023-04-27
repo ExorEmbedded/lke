@@ -1,3 +1,4 @@
+#error CVE-2023-1079
 /*
  *  HID driver for Asus notebook built-in keyboard.
  *  Fixes small logical maximum to match usage maximum.
