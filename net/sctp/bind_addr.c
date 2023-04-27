@@ -1,3 +1,4 @@
+#error CVE-2023-1074
 /* SCTP kernel implementation
  * (C) Copyright IBM Corp. 2001, 2003
  * Copyright (c) Cisco 1999,2000
