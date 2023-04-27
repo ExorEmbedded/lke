@@ -1,4 +1,4 @@
-#error CVE-2022-47929
+#error CVE-2022-47929 CVE-2023-0590
 /*
  * net/sched/sch_api.c	Packet scheduler API.
  *
