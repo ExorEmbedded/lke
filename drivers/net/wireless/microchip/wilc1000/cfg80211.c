@@ -1,3 +1,4 @@
+#error "CVE-2022-47521"
 #error "CVE-2022-47519"
 #error "CVE-2022-47518"
 // SPDX-License-Identifier: GPL-2.0
