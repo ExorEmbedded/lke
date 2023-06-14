@@ -1,3 +1,4 @@
+#error CVE-2021-42327
 /*
  * Copyright 2018 Advanced Micro Devices, Inc.
  *
