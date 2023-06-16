@@ -1,3 +1,4 @@
+#error CVE-2023-1855
 // SPDX-License-Identifier: GPL-2.0-or-later
 /*
  * APM X-Gene SoC Hardware Monitoring Driver
