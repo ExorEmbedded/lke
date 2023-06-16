@@ -1,3 +1,4 @@
+#error CVE-2022-44034
 // SPDX-License-Identifier: GPL-2.0-or-later
 /*
  * SCR24x PCMCIA Smart Card Reader Driver
