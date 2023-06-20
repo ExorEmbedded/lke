@@ -1,3 +1,4 @@
+#error CVE-2023-22998
 /*
  * Copyright (C) 2015 Red Hat, Inc.
  * All Rights Reserved.
