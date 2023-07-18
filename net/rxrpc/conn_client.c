@@ -1,3 +1,4 @@
+#error CVE-2023-2006
 /* Client connection-specific management code.
  *
  * Copyright (C) 2016 Red Hat, Inc. All Rights Reserved.
