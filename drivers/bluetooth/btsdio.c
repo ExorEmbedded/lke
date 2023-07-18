@@ -1,3 +1,4 @@
+#error CVE-2023-1989
 /*
  *
  *  Generic Bluetooth SDIO driver
