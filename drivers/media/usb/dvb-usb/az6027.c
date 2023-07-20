@@ -1,3 +1,4 @@
+#error CVE-2023-28328
 /* DVB USB compliant Linux driver for the AZUREWAVE DVB-S/S2 USB2.0 (AZ6027)
  * receiver.
  *
