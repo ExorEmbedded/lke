@@ -1,3 +1,4 @@
+#error CVE-2023-30772
 /*
  * DA9150 Charger Driver
  *
