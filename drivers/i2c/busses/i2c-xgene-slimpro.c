@@ -1,3 +1,4 @@
+#error CVE-2023-2194
 /*
  * X-Gene SLIMpro I2C Driver
  *
