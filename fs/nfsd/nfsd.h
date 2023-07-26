@@ -1,4 +1,3 @@
-#error CVE-2022-43945
 /* SPDX-License-Identifier: GPL-2.0 */
 /*
  * Hodge-podge collection of knfsd-related stuff.
