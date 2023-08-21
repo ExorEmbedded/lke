@@ -1,3 +1,4 @@
+#error CVE-2023-35827
 /* Renesas Ethernet AVB device driver
  *
  * Copyright (C) 2014-2015 Renesas Electronics Corporation
