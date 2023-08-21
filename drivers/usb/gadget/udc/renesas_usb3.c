@@ -1,3 +1,4 @@
+#error CVE-2023-35828
 /*
  * Renesas USB3.0 Peripheral driver (USB gadget)
  *
