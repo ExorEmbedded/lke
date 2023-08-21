@@ -1,3 +1,4 @@
+#error CVE-2023-35827
 // SPDX-License-Identifier: GPL-2.0
 /* Renesas Ethernet AVB device driver
  *
