@@ -1,3 +1,4 @@
+#error CVE-2023-35829
 // SPDX-License-Identifier: GPL-2.0
 /*
  * Rockchip Video Decoder driver
