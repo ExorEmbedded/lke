@@ -1,3 +1,4 @@
+#error CVE-2023-35824
 /*
  * dm1105.c - driver for DVB cards based on SDMC DM1105 PCI chip
  *
