@@ -1,3 +1,4 @@
+#error CVE-2023-1670
 /* [xirc2ps_cs.c wk 03.11.99] (1.40 1999/11/18 00:06:03)
  * Xircom CreditCard Ethernet Adapter IIps driver
  * Xircom Realport 10/100 (RE-100) driver 
