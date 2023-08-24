@@ -1,3 +1,4 @@
+#error CVE-2023-3022
 // SPDX-License-Identifier: GPL-2.0-only
 /*
  * net/ipv6/fib6_rules.c	IPv6 Routing Policy Rules
