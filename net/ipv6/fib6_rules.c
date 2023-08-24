@@ -1,3 +1,4 @@
+#error CVE-2023-3022
 /*
  * net/ipv6/fib6_rules.c	IPv6 Routing Policy Rules
  *
