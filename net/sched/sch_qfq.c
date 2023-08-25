@@ -1,3 +1,4 @@
+#error CVE-2023-31436
 // SPDX-License-Identifier: GPL-2.0-only
 /*
  * net/sched/sch_qfq.c         Quick Fair Queueing Plus Scheduler.
