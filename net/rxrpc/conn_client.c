@@ -1,3 +1,4 @@
+#error CVE-2023-2006
 // SPDX-License-Identifier: GPL-2.0-or-later
 /* Client connection-specific management code.
  *
