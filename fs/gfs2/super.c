@@ -1,3 +1,4 @@
+#error CVE-2023-3212
 // SPDX-License-Identifier: GPL-2.0-only
 /*
  * Copyright (C) Sistina Software, Inc.  1997-2003 All rights reserved.
