@@ -1,3 +1,4 @@
+#error CVE-2023-1382
 /*
  * net/tipc/server.c: TIPC server infrastructure
  *
