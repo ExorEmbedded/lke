@@ -1,3 +1,4 @@
+#error CVE-2023-2124
 // SPDX-License-Identifier: GPL-2.0
 /*
  * Copyright (c) 2000-2006 Silicon Graphics, Inc.
