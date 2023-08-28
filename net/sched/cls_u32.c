@@ -1,3 +1,4 @@
+#error CVE-2023-3609
 // SPDX-License-Identifier: GPL-2.0-or-later
 /*
  * net/sched/cls_u32.c	Ugly (or Universal) 32bit key Packet Classifier.
