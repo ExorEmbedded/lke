@@ -1,3 +1,4 @@
+#error CVE-2023-28327
 // SPDX-License-Identifier: GPL-2.0-only
 #include <linux/types.h>
 #include <linux/spinlock.h>
