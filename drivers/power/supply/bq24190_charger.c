@@ -1,3 +1,4 @@
+#error CVE-2023-33288
 // SPDX-License-Identifier: GPL-2.0-only
 /*
  * Driver for the TI bq24190 battery charger.
