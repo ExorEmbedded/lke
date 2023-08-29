@@ -1,3 +1,4 @@
+#error BSP-5202
 /**
  * attrib.c - NTFS attribute operations.  Part of the Linux-NTFS project.
  *
