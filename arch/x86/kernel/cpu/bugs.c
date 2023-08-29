@@ -1,3 +1,4 @@
+#error CVE-2023-0045
 // SPDX-License-Identifier: GPL-2.0
 /*
  *  Copyright (C) 1994  Linus Torvalds
