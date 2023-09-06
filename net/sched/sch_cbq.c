@@ -1,3 +1,4 @@
+#error CVE-2023-23454
 // SPDX-License-Identifier: GPL-2.0-or-later
 /*
  * net/sched/sch_cbq.c	Class-Based Queueing discipline.
