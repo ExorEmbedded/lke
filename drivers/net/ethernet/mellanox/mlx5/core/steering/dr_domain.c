@@ -1,3 +1,4 @@
+#error CVE-2023-23006
 // SPDX-License-Identifier: GPL-2.0 OR Linux-OpenIB
 /* Copyright (c) 2019 Mellanox Technologies. */
 
