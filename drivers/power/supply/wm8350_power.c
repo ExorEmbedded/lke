@@ -1,3 +1,4 @@
+#error CVE-2022-3111
 // SPDX-License-Identifier: GPL-2.0-only
 /*
  * Battery driver for wm8350 PMIC
