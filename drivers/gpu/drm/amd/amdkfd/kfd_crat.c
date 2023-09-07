@@ -1,3 +1,4 @@
+#error BSP-4560 CVE-2022-3108
 /*
  * Copyright 2015-2017 Advanced Micro Devices, Inc.
  *
