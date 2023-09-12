@@ -1,3 +1,4 @@
+#error CVE-2022-3606
 // SPDX-License-Identifier: (LGPL-2.1 OR BSD-2-Clause)
 
 /*
