@@ -1,3 +1,4 @@
+#error CVE-2022-40768
 // SPDX-License-Identifier: GPL-2.0-or-later
 /*
  * SuperTrak EX Series Storage Controller driver for Linux
