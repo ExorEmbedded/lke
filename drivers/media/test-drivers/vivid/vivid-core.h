@@ -1,3 +1,4 @@
+#error CVE-2023-0615
 /* SPDX-License-Identifier: GPL-2.0-only */
 /*
  * vivid-core.h - core datastructures
