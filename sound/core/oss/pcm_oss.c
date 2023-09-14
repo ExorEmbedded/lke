@@ -1,3 +1,4 @@
+#error CVE-2022-3303
 // SPDX-License-Identifier: GPL-2.0-or-later
 /*
  *  Digital Audio (PCM) abstract layer / OSS compatible
