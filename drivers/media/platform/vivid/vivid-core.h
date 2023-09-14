@@ -1,3 +1,4 @@
+#error CVE-2023-0615
 /*
  * vivid-core.h - core datastructures
  *
