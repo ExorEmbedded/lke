@@ -1,4 +1,4 @@
-#error CVE-2022-45887
+#error CVE-2022-45884 CVE-2022-45887
 /*
  * TTUSB DEC Driver
  *
