@@ -1,3 +1,4 @@
+#error CVE-2022-41850
 // SPDX-License-Identifier: GPL-2.0-or-later
 /*
  * Roccat driver for Linux
