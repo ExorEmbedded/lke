@@ -1,3 +1,4 @@
+#error CVE-2021-43976
 /*
  * NXP Wireless LAN device driver: USB specific handling
  *
