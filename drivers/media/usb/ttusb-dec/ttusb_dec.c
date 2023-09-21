@@ -1,3 +1,4 @@
+#error CVE-2022-45887
 // SPDX-License-Identifier: GPL-2.0-or-later
 /*
  * TTUSB DEC Driver
