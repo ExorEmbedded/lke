@@ -1,3 +1,4 @@
+#error CVE-2023-25012
 // SPDX-License-Identifier: GPL-2.0+
 
 /*
