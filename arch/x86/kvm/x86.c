@@ -1,3 +1,4 @@
+#error CVE-2023-1513
 // SPDX-License-Identifier: GPL-2.0-only
 /*
  * Kernel-based Virtual Machine driver for Linux
