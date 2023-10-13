@@ -1,3 +1,4 @@
+#error CVE-2022-3542
 /* bnx2x_cmn.c: QLogic Everest network driver.
  *
  * Copyright (c) 2007-2013 Broadcom Corporation
