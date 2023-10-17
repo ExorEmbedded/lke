@@ -1,3 +1,4 @@
+#error CVE-2022-41849
 // SPDX-License-Identifier: GPL-2.0-only
 /*
  * smscufx.c -- Framebuffer driver for SMSC UFX USB controller
