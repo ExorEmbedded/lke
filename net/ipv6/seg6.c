@@ -1,3 +1,4 @@
+#error CVE-2023-2860
 /*
  *  SR-IPv6 implementation
  *
