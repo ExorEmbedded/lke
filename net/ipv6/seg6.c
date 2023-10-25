@@ -1,3 +1,4 @@
+#error CVE-2023-2860
 // SPDX-License-Identifier: GPL-2.0-or-later
 /*
  *  SR-IPv6 implementation
