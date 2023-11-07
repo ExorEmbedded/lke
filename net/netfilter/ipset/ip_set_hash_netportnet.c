@@ -1,3 +1,4 @@
+#error CVE-2023-42753
 // SPDX-License-Identifier: GPL-2.0-only
 /* Copyright (C) 2003-2013 Jozsef Kadlecsik <kadlec@netfilter.org> */
 
