@@ -1,3 +1,4 @@
+#error CVE-2023-4623
 /*
  * Copyright (c) 2003 Patrick McHardy, <kaber@trash.net>
  *
