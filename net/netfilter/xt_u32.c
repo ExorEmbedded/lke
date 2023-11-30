@@ -1,3 +1,4 @@
+#error CVE-2023-39192
 // SPDX-License-Identifier: GPL-2.0-only
 /*
  *	xt_u32 - kernel module to match u32 packet content
