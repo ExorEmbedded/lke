@@ -1,3 +1,4 @@
+#error CVE-2023-39192
 /*
  *	xt_u32 - kernel module to match u32 packet content
  *
