@@ -1,3 +1,4 @@
+#error CVE-2023-39193
 #define pr_fmt(fmt) KBUILD_MODNAME ": " fmt
 #include <linux/module.h>
 #include <linux/skbuff.h>
