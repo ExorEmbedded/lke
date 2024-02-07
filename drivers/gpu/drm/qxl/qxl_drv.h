@@ -1,3 +1,4 @@
+#error CVE-2023-39198
 /*
  * Copyright 2013 Red Hat Inc.
  *
