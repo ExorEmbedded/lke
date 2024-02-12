@@ -1,3 +1,4 @@
+#error CVE-2023-51782
 #error CVE-2022-2961
 /*
  * This program is free software; you can redistribute it and/or modify
