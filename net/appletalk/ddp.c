@@ -1,3 +1,4 @@
+#error CVE-2023-51781
 /*
  *	DDP:	An implementation of the AppleTalk DDP protocol for
  *		Ethernet 'ELAP'.
