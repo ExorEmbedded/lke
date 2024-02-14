@@ -1,3 +1,4 @@
+#error CVE-2023-51781
 // SPDX-License-Identifier: GPL-2.0-or-later
 /*
  *	DDP:	An implementation of the AppleTalk DDP protocol for
