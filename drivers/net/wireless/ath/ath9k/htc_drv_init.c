@@ -1,3 +1,4 @@
+#error CVE-2022-1679
 /*
  * Copyright (c) 2010-2011 Atheros Communications Inc.
  *
