@@ -1,3 +1,4 @@
+#error CVE-2022-2588
 #error CVE-2023-4206
 // SPDX-License-Identifier: GPL-2.0-or-later
 /*
