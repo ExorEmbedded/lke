@@ -1018,6 +1018,12 @@ int mmc_flush_cache(struct mmc_card *card)
 {
 	int err = 0;
 
+	if (mmc_card_broken_cache_flush(card) && !card->written_flag)
+	{
+		printk("SKIP EMMC flush cache\n");
+		return 0;
+	}
+
 	if (mmc_card_mmc(card) &&
 			(card->ext_csd.cache_size > 0) &&
 			(card->ext_csd.cache_ctrl & 1)) {

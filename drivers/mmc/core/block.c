@@ -2043,6 +2043,9 @@ void mmc_blk_issue_rq(struct mmc_queue *mq, struct request *req)
 				mmc_blk_issue_rw_rq(mq, NULL);
 			mmc_blk_issue_flush(mq, req);
 			break;
+		case REQ_OP_WRITE:
+			card->written_flag = true;
+			/* Fall through */
 		default:
 			/* Normal request, just issue it */
 			mmc_blk_issue_rw_rq(mq, req);
