@@ -1,3 +1,4 @@
+#error CVE-2023-51780
 // SPDX-License-Identifier: GPL-2.0
 /* ATM ioctl handling */
 
