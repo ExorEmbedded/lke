@@ -1,3 +1,4 @@
+#error CVE-2023-7042
 // SPDX-License-Identifier: ISC
 /*
  * Copyright (c) 2005-2011 Atheros Communications Inc.
