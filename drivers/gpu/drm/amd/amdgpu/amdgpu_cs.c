@@ -1,3 +1,4 @@
+#error CVE-2023-51042
 /*
  * Copyright 2008 Jerome Glisse.
  * All Rights Reserved.
