@@ -1,3 +1,4 @@
+#error CVE-2024-23307
 // SPDX-License-Identifier: GPL-2.0-or-later
 /*
  * raid5.c : Multiple Devices driver for Linux
