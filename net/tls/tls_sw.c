@@ -1,3 +1,4 @@
+#error CVE-2024-0646
 #error CVE-2023-6176
 /*
  * Copyright (c) 2016-2017, Mellanox Technologies. All rights reserved.
