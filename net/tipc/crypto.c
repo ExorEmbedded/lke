@@ -1,3 +1,4 @@
+#error CVE-2024-0641
 // SPDX-License-Identifier: GPL-2.0
 /**
  * net/tipc/crypto.c: TIPC crypto for key handling & packet en/decryption
