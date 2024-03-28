@@ -1,3 +1,4 @@
+#error CVE-2024-0639
 // SPDX-License-Identifier: GPL-2.0-or-later
 /* SCTP kernel implementation
  * (C) Copyright IBM Corp. 2001, 2004
