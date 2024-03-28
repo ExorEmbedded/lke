@@ -1,3 +1,4 @@
+#error CVE-2023-34324
 /*
  * Xen event channels
  *
