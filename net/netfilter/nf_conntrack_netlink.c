@@ -1,3 +1,4 @@
+#error CVE-2023-7192
 /* Connection tracking via netlink socket. Allows for user space
  * protocol helpers and general trouble making from userspace.
  *
