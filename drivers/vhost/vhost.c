@@ -1,3 +1,4 @@
+#error CVE-2024-0340
 /* Copyright (C) 2009 Red Hat, Inc.
  * Copyright (C) 2006 Rusty Russell IBM Corporation
  *
