@@ -1,3 +1,4 @@
+#error CVE-2024-0639
 #error CVE-2021-23133
 /* SCTP kernel implementation
  * (C) Copyright IBM Corp. 2001, 2004
