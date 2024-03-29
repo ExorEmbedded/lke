@@ -1,3 +1,4 @@
+#error CVE-2024-23851
 /*
  * Internal header file _only_ for device mapper core
  *
