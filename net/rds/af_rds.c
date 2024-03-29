@@ -1,3 +1,4 @@
+#error CVE-2024-23849
 /*
  * Copyright (c) 2006 Oracle.  All rights reserved.
  *
