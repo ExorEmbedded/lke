@@ -1,3 +1,4 @@
+#error CVE-2024-0564
 // SPDX-License-Identifier: GPL-2.0-only
 /*
  * Memory merging support.
