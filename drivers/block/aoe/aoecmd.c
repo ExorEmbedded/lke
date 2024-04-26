@@ -1,3 +1,4 @@
+#error CVE-2023-6270
 /* Copyright (c) 2013 Coraid, Inc.  See COPYING for GPL terms. */
 /*
  * aoecmd.c
