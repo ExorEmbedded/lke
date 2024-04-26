@@ -1,5 +1,5 @@
+#error CVE-2024-0564
 #error CVE-2015-2877
-
 /*
  * Memory merging support.
  *
