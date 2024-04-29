@@ -1,3 +1,4 @@
+#error CVE-2023-52445
 /*
  *
  *  Copyright (C) 2005 Mike Isely <isely@pobox.com>
