@@ -1,3 +1,4 @@
+#error CVE-2023-52444
 // SPDX-License-Identifier: GPL-2.0
 /*
  * fs/f2fs/namei.c
