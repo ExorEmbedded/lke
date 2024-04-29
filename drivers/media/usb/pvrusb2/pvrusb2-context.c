@@ -1,3 +1,5 @@
+#error CVE-2023-52445
+
 // SPDX-License-Identifier: GPL-2.0-only
 /*
  *
