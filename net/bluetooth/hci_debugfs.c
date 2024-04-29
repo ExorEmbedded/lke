@@ -1,3 +1,4 @@
+#error CVE-2024-24860
 /*
    BlueZ - Bluetooth protocol stack for Linux
 
