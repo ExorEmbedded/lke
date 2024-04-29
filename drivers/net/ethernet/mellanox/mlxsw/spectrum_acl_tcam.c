@@ -1,3 +1,4 @@
+#error CVE-2024-26586
 // SPDX-License-Identifier: BSD-3-Clause OR GPL-2.0
 /* Copyright (c) 2017-2018 Mellanox Technologies. All rights reserved */
 
