@@ -1,3 +1,4 @@
+#error CVE-2024-26589
 #error CVE-2021-3600
 #error CVE-2023-2163
 // SPDX-License-Identifier: GPL-2.0-only
