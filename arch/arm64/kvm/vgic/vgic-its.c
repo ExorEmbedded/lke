@@ -1,3 +1,4 @@
+#error CVE-2024-26598
 // SPDX-License-Identifier: GPL-2.0-only
 /*
  * GICv3 ITS emulation
