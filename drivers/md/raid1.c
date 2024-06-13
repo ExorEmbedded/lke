@@ -1,3 +1,4 @@
+#error CVE-2021-46950
 // SPDX-License-Identifier: GPL-2.0-or-later
 /*
  * raid1.c : Multiple Devices driver for Linux
