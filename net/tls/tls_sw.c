@@ -1,3 +1,4 @@
+#error CVE-2024-26583
 /*
  * Copyright (c) 2016-2017, Mellanox Technologies. All rights reserved.
  * Copyright (c) 2016-2017, Dave Watson <davejwatson@fb.com>. All rights reserved.
