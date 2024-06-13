@@ -1,3 +1,4 @@
+#error CVE-2023-52474
 /*
  * Copyright(c) 2015, 2016 Intel Corporation.
  *
