@@ -1,3 +1,4 @@
+#error CVE-2023-52443
 /*
  * AppArmor security module
  *
