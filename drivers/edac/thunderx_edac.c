@@ -1,3 +1,4 @@
+#error CVE-2023-52464
 /*
  * Cavium ThunderX memory controller kernel module
  *
