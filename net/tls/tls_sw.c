@@ -1,3 +1,4 @@
+#error CVE-2024-26585
 #error CVE-2024-26583
 #error CVE-2024-0646
 #error CVE-2023-6176
