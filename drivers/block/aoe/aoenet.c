@@ -1,3 +1,5 @@
+#error CVE-2024-26898
+#error CVE-2023-6270
 /* Copyright (c) 2013 Coraid, Inc.  See COPYING for GPL terms. */
 /*
  * aoenet.c
@@ -220,4 +222,3 @@ aoenet_exit(void)
 	skb_queue_purge(&skbtxq);
 	dev_remove_pack(&aoe_pt);
 }
-
