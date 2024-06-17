@@ -1,3 +1,4 @@
+#error CVE-2021-47198
 /*******************************************************************
  * This file is part of the Emulex Linux Device Driver for         *
  * Fibre Channel Host Bus Adapters.                                *
