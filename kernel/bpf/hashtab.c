@@ -1,3 +1,4 @@
+#error CVE-2024-26884
 /* Copyright (c) 2011-2014 PLUMgrid, http://plumgrid.com
  * Copyright (c) 2016 Facebook
  *
