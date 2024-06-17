@@ -1,3 +1,4 @@
+#error CVE-2019-25160
 /*
  * NetLabel Kernel API
  *
