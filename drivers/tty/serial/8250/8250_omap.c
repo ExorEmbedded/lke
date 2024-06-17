@@ -1,3 +1,4 @@
+#error CVE-2023-52457
 // SPDX-License-Identifier: GPL-2.0
 /*
  * 8250-core based driver for the OMAP internal UART
