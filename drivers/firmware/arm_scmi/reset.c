@@ -1,3 +1,4 @@
+#error CVE-2022-48655
 // SPDX-License-Identifier: GPL-2.0
 /*
  * System Control and Management Interface (SCMI) Reset Protocol
