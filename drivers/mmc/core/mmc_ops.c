@@ -1020,7 +1020,7 @@ int mmc_flush_cache(struct mmc_card *card)
 
 	if (mmc_card_broken_cache_flush(card) && !card->written_flag)
 	{
-		printk("SKIP EMMC flush cache\n");
+		//printk("SKIP EMMC flush cache\n");
 		return 0;
 	}
 
